@@ -28,7 +28,7 @@
 
         <meta-data
                 android:name="xposeddescription"
-                android:value="芝麻粒LazyImmortal版" />
+                android:value="勿以恶小而为之，勿以善小而不为。" />
 
         <meta-data
                 android:name="xposedminversion"

@@ -3,6 +3,7 @@ package io.github.lazyimmortal.sesame.model.task.antFarm;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import io.github.lazyimmortal.sesame.data.ModelFields;
 import io.github.lazyimmortal.sesame.data.ModelGroup;
 import io.github.lazyimmortal.sesame.data.modelFieldExt.*;
@@ -30,6 +31,7 @@ public class AntFarm extends ModelTask {
     private double harvestBenevolenceScore;
     private int unreceiveTaskAward = 0;
     private double finalScore = 0d;
+    private double foodInTrough = 0d;
 
     private FarmTool[] farmTools;
 
@@ -322,7 +324,6 @@ public class AntFarm extends ModelTask {
 
                 if (needReload) {
                     enterFarm();
-                    syncAnimalStatus(ownerFarmId);
                 }
 
                 autoFeedAnimal();
@@ -469,19 +470,21 @@ public class AntFarm extends ModelTask {
 
     private void autoFeedAnimal() {
         if (feedAnimal.getValue()) {
+            syncAnimalStatus(ownerFarmId);
             if (AnimalFeedStatus.HUNGRY.name().equals(ownerAnimal.animalFeedStatus)) {
                 feedAnimal(ownerFarmId);
                 syncAnimalStatus(ownerFarmId);
             }
             try {
-                Long startEatTime = ownerAnimal.startEatTime;
+                Long startEatTime = System.currentTimeMillis();
                 double allFoodHaveEatten = 0d;
                 double allConsumeSpeed = 0d;
                 for (Animal animal : animals) {
                     allFoodHaveEatten += animal.foodHaveEatten;
+                    allFoodHaveEatten += animal.consumeSpeed * (startEatTime - animal.startEatTime) / 1000;
                     allConsumeSpeed += animal.consumeSpeed;
                 }
-                long nextFeedTime = startEatTime + (long) ((180 - (allFoodHaveEatten)) / (allConsumeSpeed)) * 1000;
+                long nextFeedTime = startEatTime + (long) ((foodInTrough - (allFoodHaveEatten)) / (allConsumeSpeed)) * 1000;
                 String taskId = "FA|" + ownerFarmId;
                 if (!hasChildTask(taskId)) {
                     addChildTask(new ChildModelTask(taskId, "FA", () -> feedAnimal(ownerFarmId), nextFeedTime));
@@ -1200,7 +1203,7 @@ public class AntFarm extends ModelTask {
         // consumeSpeed: g/s
         // AccelerateTool: -1h = -60m = -3600s
         boolean isUseAccelerateTool = false;
-        while (180 - allFoodHaveEatten >= consumeSpeed * 3600
+        while (foodInTrough - allFoodHaveEatten >= consumeSpeed * 3600
                 && useFarmTool(ownerFarmId, ToolType.ACCELERATETOOL)) {
             allFoodHaveEatten += consumeSpeed * 3600;
             isUseAccelerateTool = true;
@@ -1432,6 +1435,9 @@ public class AntFarm extends ModelTask {
             JSONObject subFarmVO = jo.getJSONObject("subFarmVO");
             if (subFarmVO.has("foodStock")) {
                 foodStock = subFarmVO.getInt("foodStock");
+            }
+            if (subFarmVO.has("foodInTrough")) {
+                foodInTrough = subFarmVO.getDouble("foodInTrough");
             }
             if (subFarmVO.has("manureVO")) {
                 JSONArray manurePotList = subFarmVO.getJSONObject("manureVO").getJSONArray("manurePotList");
@@ -2208,6 +2214,7 @@ public class AntFarm extends ModelTask {
             Log.printStackTrace(TAG, t);
         }
     }
+
     // 一起拿小鸡饲料
     private void letsGetChickenFeedTogether() {
         try {
@@ -2237,7 +2244,7 @@ public class AntFarm extends ModelTask {
                 int remainingInvites = 5 - invitedToday;
                 int invitesToSend = Math.min(canInviteCount, remainingInvites);
 
-                if (invitesToSend==0) {
+                if (invitesToSend == 0) {
                     return;
                 }
 
@@ -2395,6 +2402,7 @@ public class AntFarm extends ModelTask {
         String[] nickNames = {"选中雇佣", "选中不雇佣"};
 
     }
+
     public interface GetFeedType {
 
         int GIVE = 0;

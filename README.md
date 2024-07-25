@@ -1,8 +1,8 @@
 # Sesame-TK
 
-[![License](https://img.shields.io/github/license/TKaxv-7S/Sesame-TK.svg)](LICENSE)
-[![Latest Release](https://img.shields.io/github/release/TKaxv-7S/Sesame-TK.svg)](../../releases)
-[![All Releases Download](https://img.shields.io/github/downloads/TKaxv-7S/Sesame-TK/total.svg)](../../releases)
+[![License](https://img.shields.io/github/license/LazyImmortal/Sesame.svg)](LICENSE)
+[![Latest Release](https://img.shields.io/github/release/LazyImmortal/Sesame.svg)](../../releases)
+[![All Releases Download](https://img.shields.io/github/downloads/LazyImmortal/Sesame/total.svg)](../../releases)
 
 # 为了大家的资金安全与个人信息安全，强烈建议
 ## 不要使用任何未开放源代码的修改版！
@@ -22,8 +22,6 @@
 ### 特别感谢这个项目的上一位维护者[@TKaxv-7S](https://github.com/TKaxv-7S)，以及更早的维护者[@constanline](https://github.com/constanline)、[@pansong291](https://github.com/pansong291)与其他维护者们
 ### 如果您开发了新功能，觉得开发的功能还不错，同时愿意贡献PR，非常欢迎，也非常感谢大家为这个项目的付出！
 ### 注：该项目不支持合并任何 通过修改数据而实际获利 的功能PR
-
-### 旧版本在 [XQuickEnergy](https://github.com/TKaxv-7S/XQuickEnergy)
 
 ## 主要功能
 感谢蚂蚁森林对绿化事业的贡献。快速收取蚂蚁森林能量，也为祖国的绿化事业出一份微薄之力~
