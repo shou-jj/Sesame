@@ -167,8 +167,6 @@ public class AntOcean extends ModelTask {
                                     int collectedEnergy = retBubble.getInt("collectedEnergy");
                                     Log.forest("神奇海洋🐳收取[" + UserIdMap.getMaskName(userId) + "]的海洋能量#"
                                             + collectedEnergy + "g");
-                                    totalCollected += collectedEnergy;
-                                    Statistics.addData(Statistics.DataType.COLLECTED, collectedEnergy);
                                 }
                             }
                         }
