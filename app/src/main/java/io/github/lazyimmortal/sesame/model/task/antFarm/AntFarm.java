@@ -501,7 +501,6 @@ public class AntFarm extends ModelTask {
             }
             JSONObject sleepNotifyInfo = jo.getJSONObject("sleepNotifyInfo");
             if (!sleepNotifyInfo.optBoolean("canSleep", false)) {
-                Log.farm("小鸡无需睡觉🛌");
                 return false;
             }
             if (family.getValue() && !StringUtil.isEmpty(ownerGroupId)) {
@@ -534,7 +533,6 @@ public class AntFarm extends ModelTask {
                 }
                 return animalWakeUp();
             } else {
-                Log.farm("小鸡无需起床🔆");
             }
         } catch (Throwable t) {
             Log.i(TAG, "animalWakeUpNow err:");
