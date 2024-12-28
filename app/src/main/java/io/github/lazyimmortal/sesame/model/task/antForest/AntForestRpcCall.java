@@ -1,5 +1,8 @@
 package io.github.lazyimmortal.sesame.model.task.antForest;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import io.github.lazyimmortal.sesame.entity.AlipayVersion;
 import io.github.lazyimmortal.sesame.entity.RpcEntity;
 import io.github.lazyimmortal.sesame.hook.ApplicationHook;
@@ -104,9 +107,12 @@ public class AntForestRpcCall {
     }
 
     public static String queryTaskList() {
-        return ApplicationHook.requestString("alipay.antforest.forest.h5.queryTaskList",
-                "[{\"extend\":{},\"fromAct\":\"home_task_list\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\""
-                        + VERSION + "\"}]");
+        return queryTaskList(new JSONObject());
+    }
+
+    public static String queryTaskList(JSONObject extend) {
+        String args = "[{\"extend\":" + extend + ",\"fromAct\":\"home_task_list\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\"" + VERSION + "\"}]";
+        return ApplicationHook.requestString("alipay.antforest.forest.h5.queryTaskList", args);
     }
 
     public static String queryEnergyRainHome() {
@@ -335,17 +341,6 @@ public class AntForestRpcCall {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.updateUserConfig", "[{\"configMap\":{\"whackMole\":\"N\"},\"source\":\"chInfo_ch_appcenter__chsub_9patch\"}]");
     }
 
-    /* 森林集市 */
-    public static String consultForSendEnergyByAction(String sourceType) {
-        return ApplicationHook.requestString("alipay.bizfmcg.greenlife.consultForSendEnergyByAction",
-                "[{\"sourceType\":\"" + sourceType + "\"}]");
-    }
-
-    public static String sendEnergyByAction(String sourceType) {
-        return ApplicationHook.requestString("alipay.bizfmcg.greenlife.sendEnergyByAction",
-                "[{\"actionType\":\"GOODS_BROWSE\",\"requestId\":\"" + RandomUtil.getRandomString(8) + "\",\"sourceType\":\"" + sourceType + "\"}]");
-    }
-
     /* 翻倍额外能量收取 */
     public static String collectRobExpandEnergy(String propId, String propType) {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.collectRobExpandEnergy",
@@ -385,4 +380,45 @@ public class AntForestRpcCall {
                         + "\"}],\"scene\":\"FEEDS\"},\"version\":\"2.0\"}]");
     }
 
+    // 查询森林能量
+    public static String queryForestEnergy(String scene) {
+        String args = "[{\"activityCode\":\"query_forest_energy\",\"activityId\":\"2024052300762675\",\"body\":{\"scene\":\"" + scene + "\"},\"version\":\"2.0\"}]";
+        return ApplicationHook.requestString("alipay.iblib.channel.data", args);
+    }
+
+    // 生成森林能量
+    public static String produceForestEnergy(String scene) {
+        long uniqueId = System.currentTimeMillis();
+        String args = "[{\"activityCode\":\"produce_forest_energy\",\"activityId\":\"2024052300762674\",\"body\":{\"scene\":\"" + scene + "\",\"uniqueId\":\"" + uniqueId + "\"},\"version\":\"2.0\"}]";
+        return ApplicationHook.requestString("alipay.iblib.channel.data", args);
+    }
+
+    // 领取森林能量
+    public static String harvestForestEnergy(String scene, JSONArray bubbles) {
+        String args = "[{\"activityCode\":\"harvest_forest_energy\",\"activityId\":\"2024052300762676\",\"body\":{\"bubbles\":" + bubbles + ",\"scene\":\"" + scene + "\"},\"version\":\"2.0\"}]";
+        return ApplicationHook.requestString("alipay.iblib.channel.data", args);
+    }
+
+    // 森林皮肤
+    public static String listUserDressForBackpack(String positionType) {
+        String args = "[{\"positionType\":\"" + positionType + "\"," +
+                "\"source\":\"chInfo_ch_appcenter__chsub_9patch\"," +
+                "\"version\":\"" + VERSION + "\"}]";
+        return ApplicationHook.requestString("alipay.antforest.forest.h5.listUserDressForBackpack", args);
+    }
+
+    public static String wearDress(String dressType) {
+        String args = "[{\"dressType\":\"" + dressType + "\"," +
+                "\"outBizNo\":\"" + dressType + RandomUtil.nextDouble() + "\"," +
+                "\"source\":\"chInfo_ch_appcenter__chsub_9patch\"}]";
+        return ApplicationHook.requestString("alipay.antforest.forest.h5.wearDress", args);
+    }
+
+    public static String takeOffDress(String dressType, String position) {
+        String args = "[{\"dressType\":\"" + dressType + "\"," +
+                "\"outBizNo\":\"" + dressType + RandomUtil.nextDouble() + "\"," +
+                "\"position\":\"" + position + "\"," +
+                "\"source\":\"chInfo_ch_appcenter__chsub_9patch\"}]";
+        return ApplicationHook.requestString("alipay.antforest.forest.h5.takeOffDress", args);
+    }
 }

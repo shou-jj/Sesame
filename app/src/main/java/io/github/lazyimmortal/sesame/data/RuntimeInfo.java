@@ -2,9 +2,10 @@ package io.github.lazyimmortal.sesame.data;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import io.github.lazyimmortal.sesame.util.FileUtil;
 import io.github.lazyimmortal.sesame.util.Log;
-import io.github.lazyimmortal.sesame.util.UserIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.UserIdMap;
 
 import java.util.Objects;
 

@@ -1,6 +1,6 @@
 package io.github.lazyimmortal.sesame.entity;
 
-import io.github.lazyimmortal.sesame.util.ReserveIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.ReserveIdMap;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -61,7 +61,11 @@ public class GreenFinance extends ModelTask {
 
     @Override
     public Boolean check() {
-        return !TaskCommon.IS_ENERGY_TIME;
+        if (TaskCommon.IS_ENERGY_TIME) {
+            Log.other("任务暂停⏸️绿色经营:当前为仅收能量时间");
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -104,12 +108,14 @@ public class GreenFinance extends ModelTask {
 //            signIn("PLAY102932217");
         signIn("PLAY102232206");
 
-        //执行打卡
-        behaviorTick();
+        if(TimeUtil.isNowAfterOrCompareTimeStr("0836")) {
+            //执行打卡
+            behaviorTick();
+            //收好友金币
+            batchStealFriend();
+        }
         //捐助
         donation();
-        //收好友金币
-        batchStealFriend();
         //评级奖品
         prizes();
         //绿色经营
@@ -175,23 +181,33 @@ public class GreenFinance extends ModelTask {
     private void behaviorTick() {
         //绿色行动
         if (greenFinanceLsxd.getValue()) {
+            TimeUtil.sleep(1000);
             doTick("lsxd");
+            TimeUtil.sleep(1500);
         }
         //绿色采购
         if (greenFinanceLscg.getValue()) {
+            TimeUtil.sleep(1000);
             doTick("lscg");
+            TimeUtil.sleep(1500);
         }
         //绿色物流
         if (greenFinanceLswl.getValue()) {
+            TimeUtil.sleep(1000);
             doTick("lswl");
+            TimeUtil.sleep(1500);
         }
         //绿色办公
         if (greenFinanceLsbg.getValue()) {
+            TimeUtil.sleep(1000);
             doTick("lsbg");
+            TimeUtil.sleep(1500);
         }
         //绿色销售
         if (greenFinanceWdxd.getValue()) {
+            TimeUtil.sleep(1000);
             doTick("wdxd");
+            TimeUtil.sleep(1500);
         }
     }
 

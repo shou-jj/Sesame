@@ -58,7 +58,11 @@ public class NotificationUtil {
             }
             Notification mNotification = builder.build();
             if (context instanceof Service) {
-                ((Service) context).startForeground(NOTIFICATION_ID, mNotification);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    mNotifyManager.notify(NOTIFICATION_ID, mNotification);
+                } else {
+                    ((Service) context).startForeground(NOTIFICATION_ID, mNotification);
+                }
             } else {
                 mNotifyManager.notify(NOTIFICATION_ID, mNotification);
             }
@@ -70,7 +74,11 @@ public class NotificationUtil {
     public static void stop() {
         try {
             if (context instanceof Service) {
-                ((Service) context).stopForeground(true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    ((Service) context).stopForeground(Service.STOP_FOREGROUND_REMOVE);
+                } else {
+                    ((Service) context).stopForeground(true);
+                }
             } else {
                 if (mNotifyManager != null) {
                     mNotifyManager.cancel(NOTIFICATION_ID);

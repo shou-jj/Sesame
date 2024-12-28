@@ -1,14 +1,22 @@
 package io.github.lazyimmortal.sesame.model.task.antFarm;
 
+import org.json.JSONArray;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 import io.github.lazyimmortal.sesame.hook.ApplicationHook;
 import io.github.lazyimmortal.sesame.util.RandomUtil;
+import io.github.lazyimmortal.sesame.util.StringUtil;
 
 public class AntFarmRpcCall {
     private static final String VERSION = "1.8.2302070202.46";
+
+    public static String enterFarm(String userId) {
+        String args = "[{\"queryLastRecordNum\":true,\"recall\":false,\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"userId\":\"" + userId + "\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.enterFarm", args);
+    }
 
     public static String enterFarm(String farmId, String userId) {
         return ApplicationHook.requestString("com.alipay.antfarm.enterFarm",
@@ -48,9 +56,9 @@ public class AntFarmRpcCall {
     }
 
     public static String queryLoveCabin(String userId) {
-        String args1 = "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"ENTERFARM\",\"userId\":\"" +
-                userId + "\",\"version\":\"" + VERSION + "\"}]";
-        return ApplicationHook.requestString("com.alipay.antfarm.queryLoveCabin", args1);
+        String args = "[{\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"LOVECABIN\",\"userId\":\"" + userId + "\"}]";
+//        String args1 = "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"ENTERFARM\",\"userId\":\"" + userId + "\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.queryLoveCabin", args);
     }
 
     public static String rewardFriend(String consistencyKey, String friendId, String productNum, String time) {
@@ -91,10 +99,20 @@ public class AntFarmRpcCall {
         return ApplicationHook.requestString("com.alipay.antfarm.harvestProduce", args1);
     }
 
+    public static String getCharityAccount(String userId) {
+        String args = "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"userId\":\"" + userId + "\",\"version\":\"unknown\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.getCharityAccount", args);
+    }
+
     public static String listActivityInfo() {
         String args1 = "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\""
                 + VERSION + "\"}]";
         return ApplicationHook.requestString("com.alipay.antfarm.listActivityInfo", args1);
+    }
+
+    public static String getProjectInfo(String projectId) {
+        String args = "[{\"activityId\":\"\",\"projectId\":\"" + projectId + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"ANTFARM\",\"version\":\"" + VERSION + "\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.getProjectInfo", args);
     }
 
     public static String donation(String activityId, int donationAmount) {
@@ -177,10 +195,16 @@ public class AntFarmRpcCall {
     }
 
     public static String feedFriendAnimal(String friendFarmId) {
-        String args1 = "[{\"animalType\":\"CHICK\",\"canMock\":true,\"friendFarmId\":\"" + friendFarmId +
-                "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\""
-                + VERSION + "\"}]";
-        return ApplicationHook.requestString("com.alipay.antfarm.feedFriendAnimal", args1);
+        String args = "[{\"friendFarmId\":\"" + friendFarmId + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.feedFriendAnimal", args);
+    }
+
+    public static String feedFriendAnimal(String friendFarmId, String groupId) {
+        if (StringUtil.isEmpty(groupId)) {
+            return feedFriendAnimal(friendFarmId);
+        }
+        String args = "[{\"friendFarmId\":\"" + friendFarmId + "\",\"groupId\":\"" + groupId + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ChickFamily\",\"source\":\"H5\",\"spaceType\":\"ChickFamily\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.feedFriendAnimal", args);
     }
 
     public static String farmId2UserId(String farmId) {
@@ -327,13 +351,6 @@ public class AntFarmRpcCall {
 
     /* 日常任务 */
 
-    public static String doFarmTask(String bizKey) {
-        return ApplicationHook.requestString("com.alipay.antfarm.doFarmTask",
-                "[{\"bizKey\":\"" + bizKey
-                        + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\""
-                        + VERSION + "\"}]");
-    }
-
     public static String queryTabVideoUrl() {
         return ApplicationHook.requestString("com.alipay.antfarm.queryTabVideoUrl",
                 "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\"" + VERSION
@@ -413,33 +430,28 @@ public class AntFarmRpcCall {
     /* 抽抽乐 */
     public static String enterDrawMachine() {
         return ApplicationHook.requestString("com.alipay.antfarm.enterDrawMachine",
-                "[{\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"siliaorenwu\"}]");
+                "[{\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"icon\"}]");
     }
 
-    public static String chouchouleListFarmTask() {
+    public static String drawPrize() {
+        return ApplicationHook.requestString("com.alipay.antfarm.DrawPrize",
+                "[{\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\"}]");
+    }
+
+    public static String listFarmDrawTimesTask() {
         return ApplicationHook.requestString("com.alipay.antfarm.listFarmTask",
                 "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"signSceneCode\":\"\",\"source\":\"H5\",\"taskSceneCode\":\"ANTFARM_DRAW_TIMES_TASK\",\"topTask\":\"\"}]");
     }
 
-    public static String chouchouleDoFarmTask(String bizKey) {
-        return ApplicationHook.requestString("com.alipay.antfarm.doFarmTask",
-                "[{\"bizKey\":\"" + bizKey + "\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"chouchoule\",\"taskSceneCode\":\"ANTFARM_DRAW_TIMES_TASK\"}]");
-    }
-
-    public static String chouchouleReceiveFarmTaskAward(String taskId) {
+    public static String receiveFarmDrawTimesTaskAward(String taskId) {
         return ApplicationHook.requestString("com.alipay.antfarm.receiveFarmTaskAward",
-                "[{\"awardType\":\"DRAW_TIMES\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"chouchoule\",\"taskId\":\""
+                "[{\"awardType\":\"DRAW_TIMES\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"taskId\":\""
                         + taskId + "\",\"taskSceneCode\":\"ANTFARM_DRAW_TIMES_TASK\"}]");
     }
 
     public static String hireAnimal(String farmId, String animalId) {
         return ApplicationHook.requestString("com.alipay.antfarm.hireAnimal",
                 "[{\"friendFarmId\":\"" + farmId + "\",\"hireActionType\":\"HIRE_IN_FRIEND_FARM\",\"hireAnimalId\":\"" + animalId + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"sendCardChat\":false,\"source\":\"H5\",\"version\":\"" + VERSION + "\"}]");
-    }
-
-    public static String DrawPrize() {
-        return ApplicationHook.requestString("com.alipay.antfarm.DrawPrize",
-                "[{\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"chouchoule\"}]");
     }
 
     public static String drawGameCenterAward() {
@@ -461,5 +473,67 @@ public class AntFarmRpcCall {
     public static String saveOrnaments(String animalId, String farmId, String ornaments) {
         return ApplicationHook.requestString("com.alipay.antfarm.saveOrnaments",
                 "[{\"animalId\":\"" + animalId + "\",\"farmId\":\"" + farmId + "\",\"ornaments\":\"" + ornaments + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\"" + VERSION + "\"}]");
+    }
+
+    // 亲密家庭
+    public static String enterFamily() {
+        String args = "[{\"fromAnn\":false,\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.enterFamily", args);
+    }
+
+    /**
+     * 同步家庭状态
+     * @param groupId 家庭ID
+     * @param operType 要同步的信息类型
+     *                 INTIMACY_VALUE : 亲密度
+     *                 FAMILY_INTERACT_ACTION : 进行的活动
+     *                 ANIMAL_STATUS : 小鸡状态
+     *                 SLEEP_INFO|ANIMAL_STATUS : 小鸡状态与睡眠信息
+     * @param syncUserIds 要同步的用户ID
+     * @return String
+     */
+    public static String syncFamilyStatus(String groupId, String operType, String syncUserIds) {
+        // INTIMACY_VALUE
+        // FAMILY_INTERACT_ACTION
+        // SLEEP_INFO|ANIMAL_STATUS
+        // ANIMAL_STATUS|SLEEP_INFO
+        // ANIMAL_STATUS
+        String args = "[{\"groupId\":\"" + groupId + "\",\"operType\":\"" + operType + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"syncUserIds\":[\"" + syncUserIds + "\"]}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.syncFamilyStatus", args);
+    }
+
+//    public static String familyListFarmTask() {
+//        String args = "[{\"bizKey\":\"FAMILY_SIGN_TASK\",\"requestType\":\"NORMAL\",\"sceneCode\":\"familySign\",\"signSceneCode\":\"\",\"source\":\"H5\",\"taskSceneCode\":\"ANTFARM_FAMILY_TASK\"}]";
+//        return ApplicationHook.requestString("com.alipay.antfarm.listFarmTask", args);
+//    }
+
+    public static String familyReceiveFarmTaskAward(String taskId) {
+        String args = "[{\"awardType\":\"FAMILY_INTIMACY\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"taskId\":\"" + taskId + "\",\"taskSceneCode\":\"ANTFARM_FAMILY_TASK\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.receiveFarmTaskAward", args);
+    }
+
+    public static String familyAwardList() {
+        String args = "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.familyAwardList", args);
+    }
+
+    public static String receiveFamilyAward(String rightId) {
+        String args = "[{\"requestType\":\"NORMAL\",\"rightId\":\"" + rightId + "\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.receiveFamilyAward", args);
+    }
+
+    public static String familySleep(String groupId) {
+        String args = "[{\"groupId\":\"" + groupId + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"spaceType\":\"ChickFamily\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.sleep", args);
+    }
+
+    public static String familyWakeUp() {
+        String args = "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"aixinxiaowutojiating\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.wakeUp", args);
+    }
+
+    public static String familyEatTogether(String groupId, JSONArray cuisines, JSONArray friendUserIdList) {
+        String args = "[{\"cuisines\":" + cuisines + ",\"friendUserIds\":" + friendUserIdList + ",\"groupId\":\"" + groupId + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"spaceType\":\"ChickFamily\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.familyEatTogether", args);
     }
 }

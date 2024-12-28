@@ -1,143 +1,70 @@
 package io.github.lazyimmortal.sesame.model.task.antSports;
 
+import org.json.JSONObject;
+
 import io.github.lazyimmortal.sesame.hook.ApplicationHook;
+import io.github.lazyimmortal.sesame.util.Log;
+import io.github.lazyimmortal.sesame.util.MessageUtil;
 
 public class AntSportsRpcCall {
     private static final String chInfo = "ch_appcenter__chsub_9patch",
-            timeZone = "Asia\\/Shanghai", version = "3.0.1.2", alipayAppVersion = "0.0.852",
+            timeZone = "Asia/Shanghai", version = "3.0.1.2", alipayAppVersion = "0.0.852",
             cityCode = "330100", appId = "2021002116659397";
-
-    private static final String features=                "[\n" +
-            "            \"DAILY_STEPS_RANK_V2\",\n" +
-            "            \"STEP_BATTLE\",\n" +
-            "            \"CLUB_HOME_CARD\",\n" +
-            "            \"NEW_HOME_PAGE_STATIC\",\n" +
-            "            \"CLOUD_SDK_AUTH\",\n" +
-            "            \"STAY_ON_COMPLETE\",\n" +
-            "            \"EXTRA_TREASURE_BOX\",\n" +
-            "            \"NEW_HOME_PAGE_STATIC\",\n" +
-            "            \"SUPPORT_AI\",\n" +
-            "            \"SUPPORT_TAB3\",\n" +
-            "            \"SUPPORT_FLYRABBIT\",\n" +
-            "            \"SUPPORT_NEW_MATCH\",\n" +
-            "            \"EXTERNAL_ADVERTISEMENT_TASK\",\n" +
-            "            \"PROP\",\n" +
-            "            \"PROPV2\",\n" +
-            "            \"ASIAN_GAMES\"\n" +
-            "        ],\n" ;
 
     // 运动任务查询
     public static String queryCoinTaskPanel() {
-        String args1 = "[\n" +
-                "    {\n" +
-                "        \"canAddHome\": false,\n" +
-                "        \"chInfo\": \"ch_appcenter__chsub_9patch\",\n" +
-                "        \"clientAuthStatus\": \"not_support\",\n" +
-                "        \"clientOS\": \"android\",\n" +
-                "        \"features\": " +features+
-                "        \"topTaskId\": \"\"\n" +
-                "    }\n" +
-                "]";
-
-        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthCoinTaskRpc.queryCoinTaskPanel", args1);
+        String args = "[{}]";
+        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthCoinTaskRpc.queryCoinTaskPanel", args);
     }
-    // 去完成任务
-    public static String completeExerciseTasks(String taskId) {
-        String args1 = "[\n" +
-                "    {\n" +
-                "        \"chInfo\": \"ch_appcenter__chsub_9patch\",\n" +
-                "        \"clientOS\": \"android\",\n" +
-                "        \"features\": " +features+
-                "        \"taskAction\": \"JUMP\",\n" +
-                "        \"taskId\": \""+taskId+"\"\n" +
-                "    }\n" +
-                "]";
 
-        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthCoinTaskRpc.completeTask", args1);
+    public static String signUpTask(String taskId) {
+        String args = "[{\"taskId\":\"" + taskId + "\"}]";
+        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthCoinTaskRpc.signUpTask", args);
     }
-    public static String sportsCheck_in() {
-        String args1 = "[\n" +
-                "    {\n" +
-                "        \"chInfo\": \"homecard\",\n" +
-                "        \"clientOS\": \"android\",\n" +
-                "        \"features\": " +features+
-                "        \"operatorType\": \"signIn\"\n" +
-                "    }\n" +
-                "]";
 
-        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthCoinTaskRpc.signInCoinTask", args1);
+    public static String completeTask(String taskAction, String taskId) {
+        String args = "[{\"taskAction\":\"" + taskAction + "\",\"taskId\":\"" + taskId + "\"}]";
+        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthCoinTaskRpc.completeTask", args);
+    }
+    public static String signInCoinTask() {
+        String args = "[{\"operatorType\":\"signIn\"}]";
+        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthCoinTaskRpc.signInCoinTask", args);
     }
 
     public static String queryCoinBubbleModule() {
-        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.sportsHealthHomeRpc.queryCoinBubbleModule",
-                "[{\"bubbleId\":\"\",\"canAddHome\":false,\"chInfo\":\"" + chInfo
-                        + "\",\"clientAuthStatus\":\"not_support\",\"clientOS\":\"android\",\"distributionChannel\":\"\",\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"NEW_HOME_PAGE_STATIC\",\"SUPPORT_AI\",\"SUPPORT_TAB3\",\"SUPPORT_FLYRABBIT\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"]}]");
+        String args = "[{}]";
+        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.sportsHealthHomeRpc.queryCoinBubbleModule", args);
     }
 
     public static String receiveCoinAsset(String assetId, int coinAmount) {
-        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthCoinCenterRpc.receiveCoinAsset",
-                "[{\"assetId\":\"" + assetId
-                        + "\",\"chInfo\":\"" + chInfo
-                        + "\",\"clientOS\":\"android\",\"coinAmount\":"
-                        + coinAmount
-                        + ",\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"NEW_HOME_PAGE_STATIC\",\"SUPPORT_TAB3\",\"SUPPORT_FLYRABBIT\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"],\"tracertPos\":\"首页金币收集\"}]");
+        // "tracertPos": "首页金币收集" "任务面板"
+        String args = "[{\"assetId\":\"" + assetId + "\",\"coinAmount\":" + coinAmount + "}]";
+        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthCoinCenterRpc.receiveCoinAsset", args);
     }
 
-    public static String queryMyHomePage() {
-        return ApplicationHook.requestString("alipay.antsports.walk.map.queryMyHomePage", "[{\"alipayAppVersion\":\""
-                + alipayAppVersion + "\",\"chInfo\":\"" + chInfo
-                + "\",\"clientOS\":\"android\",\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"NEW_HOME_PAGE_STATIC\",\"SUPPORT_TAB3\",\"SUPPORT_FLYRABBIT\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"],\"pathListUsePage\":true,\"timeZone\":\""
-                + timeZone + "\"}]");
-    }
-
-    public static String join(String pathId) {
-        return ApplicationHook.requestString("alipay.antsports.walk.map.join", "[{\"chInfo\":\"" + chInfo
-                + "\",\"clientOS\":\"android\",\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"NEW_HOME_PAGE_STATIC\",\"SUPPORT_TAB3\",\"SUPPORT_FLYRABBIT\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"],\"pathId\":\""
-                + pathId + "\"}]");
-    }
-
-    public static String openAndJoinFirst() {
-        return ApplicationHook.requestString("alipay.antsports.walk.user.openAndJoinFirst", "[{\"chInfo\":\"" + chInfo
-                + "\",\"clientOS\":\"android\",\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"NEW_HOME_PAGE_STATIC\",\"SUPPORT_TAB3\",\"SUPPORT_FLYRABBIT\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"]}]");
-    }
-
-    public static String go(String day, String rankCacheKey, int stepCount) {
-        return ApplicationHook.requestString("alipay.antsports.walk.map.go", "[{\"chInfo\":\"" + chInfo
-                + "\",\"clientOS\":\"android\",\"day\":\"" + day
-                + "\",\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"NEW_HOME_PAGE_STATIC\",\"SUPPORT_TAB3\",\"SUPPORT_FLYRABBIT\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"],\"needAllBox\":true,\"rankCacheKey\":\""
-                + rankCacheKey + "\",\"timeZone\":\"" + timeZone + "\",\"useStepCount\":" + stepCount
-                + "}]");
-    }
-
-    public static String openTreasureBox(String boxNo, String userId) {
-        return ApplicationHook.requestString("alipay.antsports.walk.treasureBox.openTreasureBox", "[{\"boxNo\":\"" + boxNo
-                + "\",\"chInfo\":\"" + chInfo
-                + "\",\"clientOS\":\"android\",\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"NEW_HOME_PAGE_STATIC\",\"SUPPORT_TAB3\",\"SUPPORT_FLYRABBIT\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"],\"userId\":\""
-                + userId + "\"}]");
-    }
-
-    public static String queryBaseList() {
-        return ApplicationHook.requestString("alipay.antsports.walk.path.queryBaseList", "[{\"chInfo\":\"" + chInfo
-                + "\",\"clientOS\":\"android\",\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"NEW_HOME_PAGE_STATIC\",\"SUPPORT_TAB3\",\"SUPPORT_FLYRABBIT\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"]}]");
+    public static String queryDonateRecord() {
+        String args = "[{\"pageIndex\":1,\"pageSize\":10}]";
+        return ApplicationHook.requestString("alipay.antsports.walk.charity.queryDonateRecord", args);
     }
 
     public static String queryProjectList(int index) {
-        return ApplicationHook.requestString("alipay.antsports.walk.charity.queryProjectList", "[{\"chInfo\":\"" + chInfo
-                + "\",\"clientOS\":\"android\",\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"NEW_HOME_PAGE_STATIC\",\"SUPPORT_TAB3\",\"SUPPORT_FLYRABBIT\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"],\"index\":"
-                + index + ",\"projectListUseVertical\":true}]");
+        String args = "[{\"index\":" + index + ",\"projectListUseVertical\":true}]";
+        return ApplicationHook.requestString("alipay.antsports.walk.charity.queryProjectList", args);
+    }
+
+    public static String queryProjectDetail(String projectId) {
+        String args = "[{\"projectId\": \"" + projectId + "\"}]";
+        return ApplicationHook.requestString("alipay.antsports.walk.charity.queryProjectDetail", args);
     }
 
     public static String donate(int donateCharityCoin, String projectId) {
-        return ApplicationHook.requestString("alipay.antsports.walk.charity.donate", "[{\"chInfo\":\"" + chInfo
-                + "\",\"clientOS\":\"android\",\"donateCharityCoin\":" + donateCharityCoin
-                + ",\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"NEW_HOME_PAGE_STATIC\",\"SUPPORT_TAB3\",\"SUPPORT_FLYRABBIT\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"],\"projectId\":\""
-                + projectId + "\"}]");
+        String args = "[{\"donateCharityCoin\":" + donateCharityCoin + ",\"projectId\":\"" + projectId + "\"}]";
+        return ApplicationHook.requestString("alipay.antsports.walk.charity.donate", args);
     }
 
     public static String queryWalkStep() {
-        return ApplicationHook.requestString("alipay.antsports.walk.user.queryWalkStep", "[{\"chInfo\":\"" + chInfo
-                + "\",\"clientOS\":\"android\",\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"NEW_HOME_PAGE_STATIC\",\"SUPPORT_TAB3\",\"SUPPORT_FLYRABBIT\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"],\"timeZone\":\""
-                + timeZone + "\"}]");
+        String args = "[{}]";
+        return ApplicationHook.requestString("alipay.antsports.walk.user.queryWalkStep", args);
     }
 
     public static String walkDonateSignInfo(int count) {
@@ -147,12 +74,17 @@ public class AntSportsRpcCall {
                         + timeZone + "\"}]");
     }
 
-    public static String donateWalkHome(int count) {
-        return ApplicationHook.requestString("alipay.charity.mobile.donate.walk.home",
-                "[{\"module\":\"3\",\"steps\":" + count + ",\"timezoneId\":\"" + timeZone + "\"}]");
+    public static String donateWalkHome(int steps) {
+        String args = "[{\"module\":\"3\",\"steps\":" + steps + ",\"timezoneId\":\"" + timeZone + "\"}]";
+        return ApplicationHook.requestString("alipay.charity.mobile.donate.walk.home", args);
     }
 
-    public static String exchange(String actId, int count, String donateToken) {
+    public static String donateExchangeRecord() {
+        String args = "[{\"page\":1,\"pageSize\":10}]";
+        return ApplicationHook.requestString("alipay.charity.mobile.donate.exchange.record", args);
+    }
+
+    public static String donateWalkExchange(String actId, int count, String donateToken) {
         return ApplicationHook.requestString("alipay.charity.mobile.donate.walk.exchange",
                 "[{\"actId\":\"" + actId + "\",\"count\":"
                         + count + ",\"donateToken\":\"" + donateToken + "\",\"timezoneId\":\""
@@ -166,68 +98,73 @@ public class AntSportsRpcCall {
 
     // 查询用户
     public static String queryUser() {
-            return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.queryUser",
-                            "[{\"source\":\"ch_appcenter__chsub_9patch\",\"timeZone\":\"" + timeZone + "\"}]");
+        return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.queryUser", "[{}]");
     }
 
     // 查询主题列表
     public static String queryThemeList() {
-            return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.theme.queryThemeList",
-                            "[{\"chInfo\":\"ch_appcenter__chsub_9patch\",\"clientOS\":\"android\","
-                                            + "\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"SUPPORT_AI\",\"SUPPORT_FLYRABBIT\",\"SUPPORT_NEW_MATCH\",\"EXTERNAL_ADVERTISEMENT_TASK\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"]"
-                                            + "}]");
+        return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.theme.queryThemeList", "[{}]");
     }
 
     // 查询世界地图
     public static String queryWorldMap(String themeId) {
-            return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.queryWorldMap",
-                            "[{\"chInfo\":\"ch_appcenter__chsub_9patch\",\"clientOS\":\"android\","
-                                            + "\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"SUPPORT_AI\",\"SUPPORT_FLYRABBIT\",\"SUPPORT_NEW_MATCH\",\"EXTERNAL_ADVERTISEMENT_TASK\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"]"
-                                            + ",\"themeId\":\"" + themeId + "\"}]");
+        String args = "[{\"themeId\":\"" + themeId + "\"}]";
+        return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.queryWorldMap", args);
     }
 
     // 查询城市路线
     public static String queryCityPath(String cityId) {
-            return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.queryCityPath",
-                            "[{\"chInfo\":\"ch_appcenter__chsub_9patch\",\"clientOS\":\"android\","
-                                            + "\"features\":[\"DAILY_STEPS_RANK_V2\",\"STEP_BATTLE\",\"CLUB_HOME_CARD\",\"NEW_HOME_PAGE_STATIC\",\"CLOUD_SDK_AUTH\",\"STAY_ON_COMPLETE\",\"EXTRA_TREASURE_BOX\",\"SUPPORT_AI\",\"SUPPORT_FLYRABBIT\",\"SUPPORT_NEW_MATCH\",\"EXTERNAL_ADVERTISEMENT_TASK\",\"PROP\",\"PROPV2\",\"ASIAN_GAMES\"]"
-                                            + ",\"cityId\":\"" + cityId + "\"}]");
+        String args = "[{\"cityId\":\"" + cityId + "\"}]";
+        return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.queryCityPath", args);
     }
 
     // 查询路线
-    public static String queryPath(String appId, String date, String pathId) {
-            String wufuRewardType = "WUFU_CARD";
-            return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.queryPath",
-                            "[{\"appId\":\"" + appId + "\",\"date\":\"" + date + "\",\"pathId\":\"" + pathId
-                                            + "\",\"source\":\"ch_appcenter__chsub_9patch\",\"timeZone\":\"" + timeZone
-                                            + "\",\"wufuRewardType\":\"" + wufuRewardType + "\"}]");
+    public static String queryPath(String date, String pathId) {
+        String args = "[{\"date\":\"" + date + "\",\"pathId\":\"" + pathId + "\"}]";
+        return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.queryPath", args);
+    }
+
+    public static String queryPathName(String pathId) {
+        try {
+            JSONObject jo = new JSONObject(queryPath(Log.getFormatDate(), pathId));
+            if (MessageUtil.checkSuccess("queryPathName", jo)) {
+                jo = jo.getJSONObject("data").getJSONObject("path");
+                return jo.getString("name");
+            }
+        } catch (Throwable t) {
+            Log.record("查询路线:[" + pathId + "]失败！");
+        }
+        return null;
     }
 
     // 加入路线
     public static String joinPath(String pathId) {
-            return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.joinPath",
-                            "[{\"pathId\":\"" + pathId + "\",\"source\":\"ch_appcenter__chsub_9patch\"}]");
+        String args = "[{\"pathId\":\"" + pathId + "\"}]";
+        return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.joinPath", args);
     }
-    
+
     // 行走路线
-    public static String walkGo(String appId, String date, String pathId, int useStepCount) {
-        return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.go",
-        "[{\"appId\":\"" + appId + "\",\"date\":\"" + date + "\",\"pathId\":\"" + pathId
-                        + "\",\"source\":\"ch_appcenter__chsub_9patch\",\"timeZone\":\"" + timeZone
-                        + "\",\"useStepCount\":\"" + useStepCount + "\"}]");
+    public static String walkGo(String date, String pathId, int useStepCount) {
+        String args = "[{\"date\":\"" + date + "\",\"pathId\":\"" + pathId + "\",\"useStepCount\":\"" + useStepCount + "\"}]";
+        return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.go", args);
     }
-    
+
+    public static String queryMailList() {
+        String args = "[{\"mailType\":\"SYSTEM\",\"pageSize\":50,\"userMailStartIndex\":1}]";
+        return ApplicationHook.requestString("alipay.antsports.walk.mail.queryMailList", args);
+    }
+
     // 开启宝箱
     // eventBillNo = boxNo(WalkGo)
     public static String receiveEvent(String eventBillNo) {
-            return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.receiveEvent",
-                            "[{\"eventBillNo\":\"" + eventBillNo + "\"}]");
+        return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.receiveEvent",
+                "[{\"eventBillNo\":\"" + eventBillNo + "\"}]");
     }
 
     // 查询路线奖励
-    public static String queryPathReward(String appId, String pathId) {
-            return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.queryPathReward", "[{\"appId\":\""
-                            + appId + "\",\"pathId\":\"" + pathId + "\",\"source\":\"ch_appcenter__chsub_9patch\"}]");
+    public static String queryPathReward(String pathId) {
+        String args = "[{\"pathId\":\"" + pathId + "\"}]";
+        return ApplicationHook.requestString("com.alipay.sportsplay.biz.rpc.walk.queryPathReward", args);
     }
 
     /* 这个好像没用 */
@@ -269,7 +206,7 @@ public class AntSportsRpcCall {
                 "[{\"bettingPoints\":" + bettingPoints + ",\"guessInstanceId\":\"" + InstanceId
                         + "\",\"guessResultId\":\"" + ResultId
                         + "\",\"newParticipant\":false,\"roundId\":\"" + roundId
-                        + "\",\"stepTimeZone\":\"Asia/Shanghai\"}]");
+                        + "\",\"stepTimeZone\":\"" + timeZone + "\"}]");
     }
 
     public static String pathFeatureQuery() {
@@ -292,7 +229,7 @@ public class AntSportsRpcCall {
         return ApplicationHook.requestString("alipay.tiyubiz.path.map.step.query",
                 "[{\"appId\":\"" + appId + "\",\"countDate\":\"" + countDate
                         + "\",\"pathId\":\""
-                        + pathId + "\",\"timeZone\":\"Asia/Shanghai\"}]");
+                        + pathId + "\",\"timeZone\":\"" + timeZone + "\"}]");
     }
 
     public static String tiyubizGo(String countDate, int goStepCount, String pathId, String userPathRecordId) {
@@ -300,7 +237,7 @@ public class AntSportsRpcCall {
                 "[{\"appId\":\"" + appId + "\",\"countDate\":\"" + countDate
                         + "\",\"goStepCount\":"
                         + goStepCount + ",\"pathId\":\"" + pathId
-                        + "\",\"timeZone\":\"Asia/Shanghai\",\"userPathRecordId\":\""
+                        + "\",\"timeZone\":\"" + timeZone + "\",\"userPathRecordId\":\""
                         + userPathRecordId + "\"}]");
     }
 
@@ -313,7 +250,12 @@ public class AntSportsRpcCall {
     /* 抢好友大战 */
     public static String queryClubHome() {
         return ApplicationHook.requestString("alipay.antsports.club.home.queryClubHome",
-                "[{\"chInfo\":\"healthstep\",\"timeZone\":\"Asia/Shanghai\"}]");
+                "[{\"chInfo\":\"healthstep\",\"timeZone\":\"" + timeZone + "\"}]");
+    }
+
+    public static String queryClubRoom(String roomId) {
+        String args = "[{\"chInfo\":\"healthstep\",\"roomId\":\"" + roomId + "\"}]";
+        return ApplicationHook.requestString("alipay.antsports.club.trade.queryClubRoom", args);
     }
 
     public static String collectBubble(String bubbleId) {
@@ -331,9 +273,9 @@ public class AntSportsRpcCall {
                 "[{\"chInfo\":\"healthstep\",\"itemType\":\"" + itemType + "\",\"memberId\":\"" + memberId + "\",\"originBossId\":\"" + originBossId + "\"}]");
     }
 
-    public static String queryMemberPriceRanking(String coinBalance) {
-        return ApplicationHook.requestString("alipay.antsports.club.ranking.queryMemberPriceRanking",
-                "[{\"buyMember\":\"true\",\"chInfo\":\"healthstep\",\"coinBalance\":\"" + coinBalance + "\"}]");
+    public static String queryMemberPriceRanking() {
+        String args = "[{\"buyMember\":true,\"chInfo\":\"healthstep\"}]";
+        return ApplicationHook.requestString("alipay.antsports.club.ranking.queryMemberPriceRanking", args);
     }
 
     public static String queryClubMember(String memberId, String originBossId) {
@@ -341,9 +283,24 @@ public class AntSportsRpcCall {
                 "[{\"chInfo\":\"healthstep\",\"memberId\":\"" + memberId + "\",\"originBossId\":\"" + originBossId + "\"}]");
     }
 
-    public static String buyMember(String currentBossId, String memberId, String originBossId, String priceInfo, String roomId) {
+    public static String buyMember(String currentBossId, String memberId, String originBossId, JSONObject priceInfo, String roomId) {
         String requestData = "[{\"chInfo\":\"healthstep\",\"currentBossId\":\"" + currentBossId + "\",\"memberId\":\"" + memberId + "\",\"originBossId\":\"" + originBossId + "\",\"priceInfo\":" + priceInfo + ",\"roomId\":\"" + roomId + "\"}]";
         return ApplicationHook.requestString("alipay.antsports.club.trade.buyMember", requestData);
     }
 
+    // 运动币兑好礼
+    public static String queryItemDetail(String itemId) {
+        String arg = "[{\"itemId\":\"" + itemId + "\"}]";
+        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthItemCenterRpc.queryItemDetail", arg);
+    }
+
+    public static String exchangeItem(String itemId, int coinAmount) {
+        String arg = "[{\"coinAmount\":" + coinAmount + ",\"itemId\":\"" + itemId + "\"}]";
+        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthItemCenterRpc.exchangeItem", arg);
+    }
+
+    public static String queryExchangeRecordPage(String exchangeRecordId) {
+        String arg = "[{\"exchangeRecordId\":\"" + exchangeRecordId + "\"}]";
+        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthItemCenterRpc.queryExchangeRecordPage", arg);
+    }
 }

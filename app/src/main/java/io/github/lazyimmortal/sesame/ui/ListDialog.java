@@ -4,25 +4,34 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.graphics.Color;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
+
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+
 import io.github.lazyimmortal.sesame.R;
 import io.github.lazyimmortal.sesame.data.modelFieldExt.SelectAndCountModelField;
 import io.github.lazyimmortal.sesame.data.modelFieldExt.SelectAndCountOneModelField;
 import io.github.lazyimmortal.sesame.data.modelFieldExt.SelectModelField;
 import io.github.lazyimmortal.sesame.data.modelFieldExt.SelectOneModelField;
 import io.github.lazyimmortal.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
+import io.github.lazyimmortal.sesame.entity.AlipayAnimal;
+import io.github.lazyimmortal.sesame.entity.AlipayBeach;
+import io.github.lazyimmortal.sesame.entity.AlipayMarathon;
+import io.github.lazyimmortal.sesame.entity.AlipayNewAncientTree;
+import io.github.lazyimmortal.sesame.entity.AlipayReserve;
+import io.github.lazyimmortal.sesame.entity.AlipayTree;
 import io.github.lazyimmortal.sesame.entity.AlipayUser;
-import io.github.lazyimmortal.sesame.entity.AreaCode;
 import io.github.lazyimmortal.sesame.entity.CooperateUser;
+import io.github.lazyimmortal.sesame.entity.FriendWatch;
 import io.github.lazyimmortal.sesame.entity.IdAndName;
-import io.github.lazyimmortal.sesame.util.CooperationIdMap;
-import io.github.lazyimmortal.sesame.util.UserIdMap;
+import io.github.lazyimmortal.sesame.entity.WalkPath;
+import io.github.lazyimmortal.sesame.util.ToastUtil;
+import io.github.lazyimmortal.sesame.util.idMap.*;
 
 import java.util.List;
 
@@ -97,7 +106,7 @@ public class ListDialog {
         listDialog.show();
          Button positiveButton = listDialog.getButton(DialogInterface.BUTTON_POSITIVE);
         if (positiveButton != null) {
-            positiveButton.setTextColor(Color.parseColor("#216EEE")); // 设置按钮颜色为红色
+            positiveButton.setTextColor(ContextCompat.getColor(c, R.color.button));
         }
     }
 
@@ -118,19 +127,15 @@ public class ListDialog {
                 }
                 ListAdapter la = ListAdapter.get(v.getContext());
                 int index = -1;
-                switch (v.getId()) {
-                    case R.id.btn_find_last:
-                        // 下面Text要转String，不然判断equals会出问题
-                        index = la.findLast(searchText.getText().toString());
-                        break;
-
-                    case R.id.btn_find_next:
-                        // 同上
-                        index = la.findNext(searchText.getText().toString());
-                        break;
+                if (v.getId() == R.id.btn_find_last) {
+                    // 下面Text要转String，不然判断equals会出问题
+                    index = la.findLast(searchText.getText().toString());
+                } else if (v.getId() == R.id.btn_find_next) {
+                    // 同上
+                    index = la.findNext(searchText.getText().toString());
                 }
                 if (index < 0) {
-                    Toast.makeText(v.getContext(), "未搜到", Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(v.getContext(), "未搜到");
                 } else {
                     lv_list.setSelection(index);
                 }
@@ -142,13 +147,10 @@ public class ListDialog {
 
         View.OnClickListener batchBtnOnClickListener = v1 -> {
             ListAdapter la = ListAdapter.get(v1.getContext());
-            switch (v1.getId()) {
-                case R.id.btn_select_all:
-                    la.selectAll();
-                    break;
-                case R.id.btn_select_invert:
-                    la.SelectInvert();
-                    break;
+            if (v1.getId() == R.id.btn_select_all) {
+                la.selectAll();
+            } else if (v1.getId() == R.id.btn_select_invert) {
+                la.SelectInvert();
             }
         };
         btn_select_all.setOnClickListener(batchBtnOnClickListener);
@@ -219,6 +221,9 @@ public class ListDialog {
                                 .create();
                         if (curIdAndName instanceof CooperateUser)
                             edt_count.setHint("浇水克数");
+                        else if (curIdAndName instanceof AlipayMarathon
+                                || curIdAndName instanceof AlipayNewAncientTree)
+                            edt_count.setHint("助力克数");
                         else
                             edt_count.setHint("次数");
                         Integer value = selectModelFieldFunc.get(curIdAndName.id);
@@ -232,16 +237,47 @@ public class ListDialog {
         lv_list.setOnItemLongClickListener(
                 (p1, p2, p3, p4) -> {
                     IdAndName curIdAndName = (IdAndName) p1.getAdapter().getItem(p3);
-                    if (curIdAndName instanceof CooperateUser) {
+                    if ((curIdAndName instanceof AlipayTree)
+                            || (curIdAndName instanceof AlipayReserve)
+                            || (curIdAndName instanceof AlipayAnimal)
+                            || (curIdAndName instanceof AlipayMarathon)
+                            || (curIdAndName instanceof AlipayNewAncientTree)
+                            || (curIdAndName instanceof AlipayBeach)
+                            || (curIdAndName instanceof WalkPath)
+                    ) {
                         try {
                             new AlertDialog.Builder(c)
                                     .setTitle("删除 " + curIdAndName.name)
                                     .setPositiveButton(c.getString(R.string.ok), (dialog, which) -> {
                                         if (which == DialogInterface.BUTTON_POSITIVE) {
-                                            if (curIdAndName instanceof AlipayUser) {
-                                                UserIdMap.remove(curIdAndName.id);
-                                            } else if (curIdAndName instanceof CooperateUser) {
-                                                CooperationIdMap.remove(curIdAndName.id);
+                                            if (curIdAndName instanceof AlipayTree) {
+                                                AlipayTree.remove(curIdAndName.id);
+                                                TreeIdMap.remove(curIdAndName.id);
+                                                TreeIdMap.save();
+                                            } else if (curIdAndName instanceof AlipayReserve) {
+                                                AlipayReserve.remove(curIdAndName.id);
+                                                ReserveIdMap.remove(curIdAndName.id);
+                                                ReserveIdMap.save();
+                                            } else if (curIdAndName instanceof AlipayAnimal) {
+                                                AlipayAnimal.remove(curIdAndName.id);
+                                                AnimalIdMap.remove(curIdAndName.id);
+                                                AnimalIdMap.save();
+                                            } else if (curIdAndName instanceof AlipayMarathon) {
+                                                AlipayMarathon.remove(curIdAndName.id);
+                                                MarathonIdMap.remove(curIdAndName.id);
+                                                MarathonIdMap.save();
+                                            } else if (curIdAndName instanceof AlipayNewAncientTree) {
+                                                AlipayNewAncientTree.remove(curIdAndName.id);
+                                                NewAncientTreeIdMap.remove(curIdAndName.id);
+                                                NewAncientTreeIdMap.save();
+                                            } else if (curIdAndName instanceof AlipayBeach) {
+                                                AlipayBeach.remove(curIdAndName.id);
+                                                BeachIdMap.remove(curIdAndName.id);
+                                                BeachIdMap.save();
+                                            } else if (curIdAndName instanceof WalkPath) {
+                                                WalkPath.remove(curIdAndName.id);
+                                                WalkPathIdMap.remove(curIdAndName.id);
+                                                WalkPathIdMap.save();
                                             }
                                             selectModelFieldFunc.remove(curIdAndName.id);
                                             ListAdapter.get(c).exitFind();
@@ -252,7 +288,7 @@ public class ListDialog {
                                     .create().show();
                         } catch (Throwable ignored) {
                         }
-                    } else if (!(curIdAndName instanceof AreaCode)) {
+                    } else if ((curIdAndName instanceof AlipayUser) || (curIdAndName instanceof  FriendWatch)) {
                         new AlertDialog.Builder(c)
                                 .setTitle("选项")
                                 .setAdapter(
@@ -286,6 +322,11 @@ public class ListDialog {
                                                                     .setTitle("删除 " + curIdAndName.name)
                                                                     .setPositiveButton(c.getString(R.string.ok), (dialog, which) -> {
                                                                         if (which == DialogInterface.BUTTON_POSITIVE) {
+                                                                            if (curIdAndName instanceof AlipayUser) {
+                                                                                UserIdMap.remove(curIdAndName.id);
+                                                                            } else if (curIdAndName instanceof FriendWatch) {
+                                                                                // nothing to do
+                                                                            }
                                                                             selectModelFieldFunc.remove(curIdAndName.id);
                                                                             ListAdapter.get(c).exitFind();
                                                                         }

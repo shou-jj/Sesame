@@ -2,9 +2,6 @@ package io.github.lazyimmortal.sesame.model.task.antForest;
 
 import io.github.lazyimmortal.sesame.hook.ApplicationHook;
 
-/**
- * @author Xiong
- */
 public class EcoLifeRpcCall {
 
     /**
@@ -75,5 +72,21 @@ public class EcoLifeRpcCall {
                         "\"pos\":[1.0002995,0.22104378,0.0011976048,0.77727276],\"value\":\"\"}],\"existAIResult\":true,\"imageId\":\"" +
                         imageId + "\",\"imageUrl\":\"https://mdn.alipayobjects.com/afts/img/" + imageId +
                         "/original?bz=APM_20000067\",\"operateType\":\"" + operateType + "\"}}]");
+    }
+
+    public static String uploadBeforeMealsDishImage(String imageId, String dayPoint) {
+        String operateType = "BEFORE_MEALS";
+        double conf1 = 0.16571736;
+        double conf2 = 0.07448776;
+        double conf3 = 0.7597949;
+        return uploadDishImage(operateType, imageId, conf1, conf2, conf3, dayPoint);
+    }
+
+    public static String uploadAfterMealsDishImage(String imageId, String dayPoint) {
+        String operateType = "AFTER_MEALS";
+        double conf1 = 0.00040030346;
+        double conf2 = 0.99891376;
+        double conf3 = 0.0006858421;
+        return uploadDishImage(operateType, imageId, conf1, conf2, conf3, dayPoint);
     }
 }

@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Constanline
@@ -206,26 +207,77 @@ public class TimeUtil {
     }
 
     /**
-     * 比较第一个时间戳的天数是否小于第二个时间戳的天数
-     * @param firstdTimestamp 第一个时间戳
-     * @param secondTimestamp 第二个时间戳
-     * @return boolean 如果小于，则为true，否则为false
+     * 比较第一个日历的天数小于第二个日历的天数
+     * @param firstCalendar 第一个日历
+     * @param secondCalendar 第二个日历
+     * @return Boolean 如果小于，则为true，否则为false
      */
-    public static boolean isLessThanSecondOfDays(Long firstdTimestamp, Long secondTimestamp) {
-        final long gmt8 = 8 * 60 * 60 * 1000;
-        final long day = 24 * 60 * 60 * 1000;
-        firstdTimestamp = firstdTimestamp + gmt8;
-        secondTimestamp = secondTimestamp + gmt8;
-        return firstdTimestamp / day < secondTimestamp / day;
+    public static Boolean isLessThanSecondOfDays(Calendar firstCalendar, Calendar secondCalendar) {
+        return (firstCalendar.get(Calendar.YEAR) < secondCalendar.get(Calendar.YEAR))
+                || (firstCalendar.get(Calendar.YEAR) == secondCalendar.get(Calendar.YEAR)
+                && firstCalendar.get(Calendar.DAY_OF_YEAR) < secondCalendar.get(Calendar.DAY_OF_YEAR));
+    }
+
+    /**
+     * 比较第一个时间戳的天数是否小于第二个时间戳的天数
+     * @param firstTimestamp 第一个时间戳
+     * @param secondTimestamp 第二个时间戳
+     * @return Boolean 如果小于，则为true，否则为false
+     */
+    public static Boolean isLessThanSecondOfDays(Long firstTimestamp, Long secondTimestamp) {
+        Calendar firstCalendar = getCalendarByTimeMillis(firstTimestamp);
+        Calendar secondCalendar = getCalendarByTimeMillis(secondTimestamp);
+        return isLessThanSecondOfDays(firstCalendar, secondCalendar);
     }
 
     /**
      * 通过时间戳比较传入的时间戳的天数是否小于当前时间戳的天数
      * @param timestamp 时间戳
-     * @return boolean 如果小于当前时间戳所计算的天数，则为true，否则为false
+     * @return Boolean 如果小于当前时间戳所计算的天数，则为true，否则为false
      */
-    public static boolean isLessThanNowOfDays(Long timestamp) {
-        return isLessThanSecondOfDays(timestamp, System.currentTimeMillis());
+    public static Boolean isLessThanNowOfDays(Long timestamp) {
+        return isLessThanSecondOfDays(getCalendarByTimeMillis(timestamp), getNow());
+    }
+
+    /**
+     * 判断两个日历对象是否为同一天
+     * @param firstCalendar 第一个日历对象
+     * @param secondCalendar 第二个日历对象
+     * @return 两个日历对象是否为同一天
+     */
+    public static Boolean isSameDay(Calendar firstCalendar, Calendar secondCalendar) {
+        return firstCalendar.get(Calendar.YEAR) == secondCalendar.get(Calendar.YEAR)
+                && firstCalendar.get(Calendar.DAY_OF_YEAR) == secondCalendar.get(Calendar.DAY_OF_YEAR);
+    }
+
+    /**
+     * 判断两个时间戳是否为同一天
+     * @param firstTimestamp 第一个时间戳
+     * @param secondTimestamp 第二个时间戳
+     * @return 两个时间戳是否为同一天
+     */
+    public static Boolean isSameDay(Long firstTimestamp, Long secondTimestamp) {
+        Calendar firstCalendar = getCalendarByTimeMillis(firstTimestamp);
+        Calendar secondCalendar = getCalendarByTimeMillis(secondTimestamp);
+        return isSameDay(firstCalendar, secondCalendar);
+    }
+
+    /**
+     * 判断日历对象是否为今天
+     * @param calendar 日历对象
+     * @return 日历对象是否为今天
+     */
+    public static Boolean isToday(Calendar calendar) {
+        return isSameDay(getToday(), calendar);
+    }
+
+    /**
+     * 判断时间戳是否为今天
+     * @param timestamp 时间戳
+     * @return 时间戳是否为今天
+     */
+    public static Boolean isToday(Long timestamp) {
+        return isToday(getCalendarByTimeMillis(timestamp));
     }
 
     @SuppressLint("SimpleDateFormat")

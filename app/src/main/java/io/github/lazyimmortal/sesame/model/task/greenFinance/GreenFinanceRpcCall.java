@@ -4,7 +4,7 @@ import org.json.JSONArray;
 
 import io.github.lazyimmortal.sesame.hook.ApplicationHook;
 import io.github.lazyimmortal.sesame.model.common.rpcCall.BaseTaskRpcCall;
-import io.github.lazyimmortal.sesame.util.UserIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.UserIdMap;
 
 /**
  * 绿色经营Rpc请求类

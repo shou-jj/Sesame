@@ -3,6 +3,7 @@ package io.github.lazyimmortal.sesame.entity;
 import org.json.JSONException;
 import org.json.JSONObject;
 import io.github.lazyimmortal.sesame.util.*;
+import io.github.lazyimmortal.sesame.util.idMap.UserIdMap;
 
 import java.util.ArrayList;
 import java.util.Calendar;

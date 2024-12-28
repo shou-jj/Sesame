@@ -195,7 +195,7 @@ public class Log {
     /* //日期转换为时间戳 */
     public static long timeToStamp(String timers) {
         Date d = new Date();
-        long timeStemp;
+        long timeStamp;
         try {
             SimpleDateFormat simpleDateFormat = OTHER_DATE_TIME_FORMAT_THREAD_LOCAL.get();
             if (simpleDateFormat == null) {
@@ -207,8 +207,8 @@ public class Log {
             }
         } catch (ParseException ignored) {
         }
-        timeStemp = d.getTime();
-        return timeStemp;
+        timeStamp = d.getTime();
+        return timeStamp;
     }
 
     public static class CustomDateFileNameGenerator implements FileNameGenerator {

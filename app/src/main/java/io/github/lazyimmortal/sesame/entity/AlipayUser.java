@@ -1,7 +1,7 @@
 package io.github.lazyimmortal.sesame.entity;
 
 import io.github.lazyimmortal.sesame.util.Log;
-import io.github.lazyimmortal.sesame.util.UserIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.UserIdMap;
 
 import java.util.ArrayList;
 import java.util.List;

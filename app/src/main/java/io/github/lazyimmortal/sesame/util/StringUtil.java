@@ -68,24 +68,17 @@ public class StringUtil {
     }
 
     public static String getSubString(String text, String left, String right) {
-        String result = "";
-        int zLen;
-        if (left == null || left.isEmpty()) {
-            zLen = 0;
-        } else {
-            zLen = text.indexOf(left);
-            if (zLen > -1) {
-                zLen += left.length();
-            } else {
-                zLen = 0;
-            }
+        int leftIndex = isEmpty(left) ? 0 : text.indexOf(left);
+        if (leftIndex == -1) {
+            return "";
+        } else if (!isEmpty(left)) {
+            leftIndex += left.length();
         }
-        int yLen = text.indexOf(right, zLen);
-        if (yLen < 0 || right == null || right.isEmpty()) {
-            yLen = text.length();
+        int rightIndex = isEmpty(right) ? text.length() : text.indexOf(right, leftIndex);
+        if (rightIndex == -1) {
+            return "";
         }
-        result = text.substring(zLen, yLen);
-        return result;
+        return text.substring(leftIndex, rightIndex);
     }
 
 }

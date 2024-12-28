@@ -13,12 +13,15 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+
+import androidx.core.content.ContextCompat;
+
+import java.io.File;
+
 import io.github.lazyimmortal.sesame.R;
 import io.github.lazyimmortal.sesame.util.FileUtil;
 import io.github.lazyimmortal.sesame.util.LanguageUtil;
-
-import java.io.File;
+import io.github.lazyimmortal.sesame.util.ToastUtil;
 
 public class HtmlViewerActivity extends BaseActivity {
     MyWebView mWebView;
@@ -29,9 +32,8 @@ public class HtmlViewerActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_html_viewer);
-        setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
+        setBaseSubtitleTextColor(ContextCompat.getColor(this, R.color.textColorPrimary));
 
         mWebView = findViewById(R.id.mwv_webview);
         pgb = findViewById(R.id.pgb_webview);
@@ -100,7 +102,7 @@ public class HtmlViewerActivity extends BaseActivity {
                     if (path != null) {
                         File exportFile = FileUtil.exportFile(new File(path));
                         if (exportFile != null) {
-                            Toast.makeText(this, "文件已导出到: " + exportFile.getPath(), Toast.LENGTH_SHORT).show();
+                            ToastUtil.show(this, "文件已导出到: " + exportFile.getPath());
                         }
                     }
                 }
@@ -112,7 +114,7 @@ public class HtmlViewerActivity extends BaseActivity {
                     if (path != null) {
                         File file = new File(path);
                         if (FileUtil.clearFile(file)) {
-                            android.widget.Toast.makeText(this, "文件已清空", android.widget.Toast.LENGTH_SHORT).show();
+                            ToastUtil.show(this, "文件已清空");
                             mWebView.reload();
                         }
                     }
@@ -126,9 +128,9 @@ public class HtmlViewerActivity extends BaseActivity {
                         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                         startActivity(intent);
                     } else if ("file".equalsIgnoreCase(scheme)) {
-                        Toast.makeText(this, "该文件不支持用浏览器打开", Toast.LENGTH_SHORT).show();
+                        ToastUtil.show(this, "该文件不支持用浏览器打开");
                     } else {
-                        Toast.makeText(this, "不支持用浏览器打开", Toast.LENGTH_SHORT).show();
+                        ToastUtil.show(this, "不支持用浏览器打开");
                     }
                 }
                 break;
@@ -136,7 +138,7 @@ public class HtmlViewerActivity extends BaseActivity {
             case 4:
                 ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                 cm.setPrimaryClip(ClipData.newPlainText(null, mWebView.getUrl()));
-                Toast.makeText(this, getString(R.string.copy_success), Toast.LENGTH_SHORT).show();
+                ToastUtil.show(this, getString(R.string.copy_success));
                 break;
 
             case 5:

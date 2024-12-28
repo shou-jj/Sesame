@@ -1,29 +1,27 @@
 package io.github.lazyimmortal.sesame.ui;
 
 import android.annotation.SuppressLint;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
-import io.github.lazyimmortal.sesame.R;
-import io.github.lazyimmortal.sesame.data.RunType;
-import io.github.lazyimmortal.sesame.data.UIConfig;
-import io.github.lazyimmortal.sesame.data.ViewAppInfo;
-import io.github.lazyimmortal.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
-import io.github.lazyimmortal.sesame.entity.FriendWatch;
-import io.github.lazyimmortal.sesame.entity.UserEntity;
-import io.github.lazyimmortal.sesame.model.normal.base.BaseModel;
-import io.github.lazyimmortal.sesame.util.*;
+import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,9 +29,26 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.github.lazyimmortal.sesame.R;
+import io.github.lazyimmortal.sesame.data.AppConfig;
+import io.github.lazyimmortal.sesame.data.RunType;
+import io.github.lazyimmortal.sesame.data.ViewAppInfo;
+import io.github.lazyimmortal.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
+import io.github.lazyimmortal.sesame.entity.FriendWatch;
+import io.github.lazyimmortal.sesame.entity.UserEntity;
+import io.github.lazyimmortal.sesame.util.FileUtil;
+import io.github.lazyimmortal.sesame.util.LanguageUtil;
+import io.github.lazyimmortal.sesame.util.LibraryUtil;
+import io.github.lazyimmortal.sesame.util.Log;
+import io.github.lazyimmortal.sesame.util.PermissionUtil;
+import io.github.lazyimmortal.sesame.util.Statistics;
+import io.github.lazyimmortal.sesame.util.TimeUtil;
+import io.github.lazyimmortal.sesame.util.ToastUtil;
+import io.github.lazyimmortal.sesame.util.idMap.UserIdMap;
+
 public class MainActivity extends BaseActivity {
 
-    private final Handler handler = new Handler();
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     private boolean hasPermissions = false;
 
@@ -63,7 +78,7 @@ public class MainActivity extends BaseActivity {
             supportActionBar.setIcon(R.drawable.title_logo);
         }*/
         updateSubTitle(ViewAppInfo.getRunType());
-        viewHandler = new Handler();
+        viewHandler = new Handler(Looper.getMainLooper());
         titleRunner = () -> updateSubTitle(RunType.DISABLE);
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -78,15 +93,13 @@ public class MainActivity extends BaseActivity {
                             }
                             viewHandler.removeCallbacks(titleRunner);
                             if (isClick) {
-                                Toast toast = Toast.makeText(context, "芝麻粒加载状态正常", Toast.LENGTH_SHORT);
-                                toast.setGravity(toast.getGravity(), toast.getXOffset(), BaseModel.getToastOffsetY().getValue());
-                                toast.show();
+                                ToastUtil.show(context, "芝麻粒加载状态正常");
                                 isClick = false;
                             }
                             break;
                         case "io.github.lazyimmortal.sesame.update":
                             Statistics.load();
-                            tvStatistics.setText(Statistics.getText());
+                            tvStatistics.setText(Statistics.getText(MainActivity.this));
                             break;
                     }
                 }
@@ -100,14 +113,14 @@ public class MainActivity extends BaseActivity {
         } else {
             registerReceiver(broadcastReceiver, intentFilter);
         }
-        AlertDialog.Builder builder= new AlertDialog.Builder(this);
-        builder.setTitle("提示");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.tips);
         builder.setMessage(R.string.start_message);
-        builder.setPositiveButton("我知道了",(dialog, which) -> dialog.dismiss());
+        builder.setPositiveButton(R.string.btn_understood, (dialog, which) -> dialog.dismiss());
         AlertDialog alertDialog = builder.create();
         Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
         if (positiveButton != null) {
-            positiveButton.setTextColor(Color.parseColor("#216EEE")); // 设置按钮颜色为红色
+            positiveButton.setTextColor(ContextCompat.getColor(this, R.color.button));
         }
     }
 
@@ -151,11 +164,6 @@ public class MainActivity extends BaseActivity {
                 }
             }
             try {
-                UIConfig.load();
-            } catch (Exception e) {
-                Log.printStackTrace(e);
-            }
-            try {
                 List<String> userNameList = new ArrayList<>();
                 List<UserEntity> userEntityList = new ArrayList<>();
                 File[] configFiles = FileUtil.CONFIG_DIRECTORY_FILE.listFiles();
@@ -188,7 +196,7 @@ public class MainActivity extends BaseActivity {
             try {
                 Statistics.load();
                 Statistics.updateDay(Calendar.getInstance());
-                tvStatistics.setText(Statistics.getText());
+                tvStatistics.setText(Statistics.getText(MainActivity.this));
             } catch (Exception e) {
                 Log.printStackTrace(e);
             }
@@ -209,34 +217,24 @@ public class MainActivity extends BaseActivity {
         }
 
         String data = "file://";
-        switch (v.getId()) {
-            case R.id.btn_forest_log:
-                data += FileUtil.getForestLogFile().getAbsolutePath();
-                break;
-
-            case R.id.btn_farm_log:
-                data += FileUtil.getFarmLogFile().getAbsolutePath();
-                break;
-
-            case R.id.btn_all_log:
-                data += FileUtil.getRecordLogFile().getAbsolutePath();
-                break;
-
-            case R.id.btn_github:
+        if (v.getId() == R.id.btn_forest_log) {
+            data += FileUtil.getForestLogFile().getAbsolutePath();
+        } else if (v.getId() == R.id.btn_farm_log) {
+            data += FileUtil.getFarmLogFile().getAbsolutePath();
+        } else if (v.getId() == R.id.btn_other_log) {
+            data += FileUtil.getOtherLogFile().getAbsolutePath();
+        } else if (v.getId() == R.id.btn_friend_watch) {
+            ListDialog.show(this, getString(R.string.friend_watch), FriendWatch.getList(), SelectModelFieldFunc.newMapInstance(), false, ListDialog.ListType.SHOW);
+            return;
+        } else if (v.getId() == R.id.btn_github) {
             //   欢迎自己打包 欢迎大佬pr
             //   项目开源且公益  维护都是自愿
             //   但是如果打包改个名拿去卖钱忽悠小白
             //   那我只能说你妈死了 就当开源项目给你妈烧纸钱了
-                data = "https://github.com/LazyImmortal/Sesame";
-                break;
-
-            case R.id.btn_settings:
-                selectSettingUid();
-                return;
-
-            case R.id.btn_friend_watch:
-                ListDialog.show(this, getString(R.string.friend_watch), FriendWatch.getList(), SelectModelFieldFunc.newMapInstance(), false, ListDialog.ListType.SHOW);
-                return;
+            data = "https://github.com/LazyImmortal/Sesame";
+        } else if (v.getId() == R.id.btn_settings) {
+            selectSettingUid();
+            return;
         }
         Intent it = new Intent(this, HtmlViewerActivity.class);
         it.setData(Uri.parse(data));
@@ -250,14 +248,19 @@ public class MainActivity extends BaseActivity {
         menu.add(0, 1, 1, R.string.hide_the_application_icon)
                 .setCheckable(true)
                 .setChecked(state > PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
-        menu.add(0, 2, 2, R.string.view_error_log_file);
-        menu.add(0, 3, 3, R.string.export_error_log_file);
-        menu.add(0, 4, 4, R.string.view_all_log_file);
-        menu.add(0, 5, 5, R.string.export_runtime_log_file);
-        menu.add(0, 6, 6, R.string.export_the_statistic_file);
-        menu.add(0, 7, 7, R.string.import_the_statistic_file);
-        menu.add(0, 8, 8, R.string.view_debug);
-        menu.add(0, 9, 9, R.string.settings);
+        menu.add(0, 2, 2, R.string.language_simplified_chinese)
+                .setCheckable(true)
+                .setChecked(AppConfig.INSTANCE.getLanguageSimplifiedChinese());
+        menu.add(0, 3, 3, R.string.view_error_log_file);
+        menu.add(0, 4, 4, R.string.export_error_log_file);
+        menu.add(0, 5, 5, R.string.view_runtime_log_file);
+        menu.add(0, 6, 6, R.string.export_runtime_log_file);
+        menu.add(0, 7, 7, R.string.export_the_statistic_file);
+        menu.add(0, 8, 8, R.string.import_the_statistic_file);
+        menu.add(0, 9, 9, R.string.view_debug_file);
+        menu.add(0, 10, 10, R.string.view_record_file);
+        menu.add(0, 11, 11, R.string.extensions);
+        menu.add(0, 12, 12, R.string.settings);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -272,6 +275,16 @@ public class MainActivity extends BaseActivity {
                 break;
 
             case 2:
+                AppConfig appConfig = AppConfig.INSTANCE;
+                appConfig.setLanguageSimplifiedChinese(!appConfig.getLanguageSimplifiedChinese());
+                if (AppConfig.save()) {
+                    item.setChecked(!item.isChecked());
+                    LanguageUtil.setLocal(this);
+                    recreate();
+                }
+                break;
+
+            case 3:
                 String errorData = "file://";
                 errorData += FileUtil.getErrorLogFile().getAbsolutePath();
                 Intent errorIt = new Intent(this, HtmlViewerActivity.class);
@@ -281,14 +294,14 @@ public class MainActivity extends BaseActivity {
                 startActivity(errorIt);
                 break;
 
-            case 3:
+            case 4:
                 File errorLogFile = FileUtil.exportFile(FileUtil.getErrorLogFile());
                 if (errorLogFile != null) {
-                    Toast.makeText(this, "文件已导出到: " + errorLogFile.getPath(), Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(this, "文件已导出到: " + errorLogFile.getPath());
                 }
                 break;
 
-            case 4:
+            case 5:
                 String allData = "file://";
                 allData += FileUtil.getRuntimeLogFile().getAbsolutePath();
                 Intent allIt = new Intent(this, HtmlViewerActivity.class);
@@ -298,28 +311,28 @@ public class MainActivity extends BaseActivity {
                 startActivity(allIt);
                 break;
 
-            case 5:
+            case 6:
                 File allLogFile = FileUtil.exportFile(FileUtil.getRuntimeLogFile());
                 if (allLogFile != null) {
-                    Toast.makeText(this, "文件已导出到: " + allLogFile.getPath(), Toast.LENGTH_SHORT).show();
-                }
-                break;
-
-            case 6:
-                File statisticsFile = FileUtil.exportFile(FileUtil.getStatisticsFile());
-                if (statisticsFile != null) {
-                    Toast.makeText(this, "文件已导出到: " + statisticsFile.getPath(), Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(this, "文件已导出到: " + allLogFile.getPath());
                 }
                 break;
 
             case 7:
-                if (FileUtil.copyTo(FileUtil.getExportedStatisticsFile(), FileUtil.getStatisticsFile())) {
-                    tvStatistics.setText(Statistics.getText());
-                    Toast.makeText(this, "导入成功！", Toast.LENGTH_SHORT).show();
+                File statisticsFile = FileUtil.exportFile(FileUtil.getStatisticsFile());
+                if (statisticsFile != null) {
+                    ToastUtil.show(this, "文件已导出到: " + statisticsFile.getPath());
                 }
                 break;
 
             case 8:
+                if (FileUtil.copyTo(FileUtil.getExportedStatisticsFile(), FileUtil.getStatisticsFile())) {
+                    tvStatistics.setText(Statistics.getText(MainActivity.this));
+                    ToastUtil.show(this, "导入成功！");
+                }
+                break;
+
+            case 9:
                 String debugData = "file://";
                 debugData += FileUtil.getDebugLogFile().getAbsolutePath();
                 Intent debugIt = new Intent(this, HtmlViewerActivity.class);
@@ -328,7 +341,21 @@ public class MainActivity extends BaseActivity {
                 startActivity(debugIt);
                 break;
 
-            case 9:
+            case 10:
+                String recordData = "file://";
+                recordData += FileUtil.getRecordLogFile().getAbsolutePath();
+                Intent recordIt = new Intent(this, HtmlViewerActivity.class);
+                recordIt.setData(Uri.parse(recordData));
+                recordIt.putExtra("canClear", true);
+                startActivity(recordIt);
+                break;
+
+            case 11:
+                Intent extend = new Intent(this, ExtensionsActivity.class);
+                startActivity(extend);
+                break;
+
+            case 12:
                 selectSettingUid();
                 break;
         }
@@ -351,11 +378,11 @@ public class MainActivity extends BaseActivity {
         // 在 AlertDialog 显示之后获取返回按钮并设置颜色
         Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
         if (positiveButton != null) {
-            positiveButton.setTextColor(Color.parseColor("#216EEE")); // 设置按钮颜色为红色
+            positiveButton.setTextColor(ContextCompat.getColor(this, R.color.button));
         }
         int length = userNameArray.length;
         if (length > 0 && length < 3) {
-            new Thread(()-> {
+            new Thread(() -> {
                 TimeUtil.sleep(800);
                 if (!selected.get()) {
                     alertDialog.dismiss();
@@ -367,7 +394,8 @@ public class MainActivity extends BaseActivity {
 
     private void goSettingActivity(int index) {
         UserEntity userEntity = userEntityArray[index];
-        Intent intent = new Intent(this, UIConfig.INSTANCE.getNewUI() && !"TEST".equals(ViewAppInfo.getAppVersion()) ? NewSettingsActivity.class : SettingsActivity.class);
+        boolean isNewUI = AppConfig.INSTANCE.getNewUI() && !"TEST".equals(ViewAppInfo.getAppVersion()) && LibraryUtil.loadLibrary("sesame");
+        Intent intent = new Intent(this, isNewUI ? NewSettingsActivity.class : SettingsActivity.class);
         if (userEntity != null) {
             intent.putExtra("userId", userEntity.getUserId());
             intent.putExtra("userName", userEntity.getShowName());
@@ -378,16 +406,18 @@ public class MainActivity extends BaseActivity {
     }
 
     private void updateSubTitle(RunType runType) {
-        setBaseTitle(ViewAppInfo.getAppTitle() + "【" + runType.getName() + "】");
         switch (runType) {
             case DISABLE:
-                setBaseTitleTextColor(Color.parseColor("#333333"));
+                setBaseTitle(ViewAppInfo.getAppTitle() + "【" + getString(R.string.disable) + "】");
+                setBaseTitleTextColor(ContextCompat.getColor(this, R.color.textColorDisable));
                 break;
             case MODEL:
-                setBaseTitleTextColor(getResources().getColor(R.color.textColorPrimary));
+                setBaseTitle(ViewAppInfo.getAppTitle() + "【" + getString(R.string.activated) + "】");
+                setBaseTitleTextColor(ContextCompat.getColor(this, R.color.textColorPrimary));
                 break;
             case PACKAGE:
-                setBaseTitleTextColor(getResources().getColor(R.color.textColorPrimary));
+                setBaseTitle(ViewAppInfo.getAppTitle() + "【" + getString(R.string.loading) + "】");
+                setBaseTitleTextColor(ContextCompat.getColor(this, R.color.textColorPrimary));
                 break;
         }
     }

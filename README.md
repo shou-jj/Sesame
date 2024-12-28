@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/github/license/LazyImmortal/Sesame.svg)](LICENSE)
 [![Latest Release](https://img.shields.io/github/release/LazyImmortal/Sesame.svg)](../../releases)
 [![All Releases Download](https://img.shields.io/github/downloads/LazyImmortal/Sesame/total.svg)](../../releases)
+[![Telegram](https://img.shields.io/static/v1?label=Telegram&message=Channel&color=0088cc)](https://t.me/Sesame_Channels)
 
 ## 为了大家的资金安全与个人信息安全，强烈建议
 1. 不要使用任何未开放源代码的修改版！
@@ -37,9 +38,11 @@
 所有图片由 ༒激༙྇流༙྇泉༙྇༒ 授权使用
 
 ## 特别说明
+- 本模块完全免费开源，没有任何收费，请勿二次贩卖
 - 由于下游闭源项目**违反**本项目开源协议，前端作者将闭源前端新UI源码，本仓库仅提交发布文件，后端暂不受影响
 - 如果您开发了新功能，觉得开发的功能还不错，同时愿意贡献PR，非常欢迎，也非常感谢大家为这个项目的付出！
 - 该项目**不支持**合并**任何**通过修改数据而**实际获利**的功能PR
+- 鉴于项目的特殊性，开发团队可能在任何时间**停止更新**或**删除项目**
 
 ## 特别感谢
 - 感谢 这个项目的上一位维护者 [@TKaxv-7S](https://github.com/TKaxv-7S) 重构项目代码

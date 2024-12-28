@@ -8,12 +8,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.*;
 import android.widget.*;
+
+import androidx.core.content.ContextCompat;
+
 import io.github.lazyimmortal.sesame.R;
 import io.github.lazyimmortal.sesame.data.*;
 import io.github.lazyimmortal.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
 import io.github.lazyimmortal.sesame.data.task.ModelTask;
 import io.github.lazyimmortal.sesame.entity.AlipayUser;
 import io.github.lazyimmortal.sesame.util.*;
+import io.github.lazyimmortal.sesame.util.idMap.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,15 +59,23 @@ public class SettingsActivity extends BaseActivity {
         UserIdMap.setCurrentUserId(userId);
         UserIdMap.load(userId);
         CooperationIdMap.load(userId);
+        VitalityBenefitIdMap.load(userId);
+        FarmOrnamentsIdMap.load(userId);
+        MemberBenefitIdMap.load(userId);
+        PromiseSimpleTemplateIdMap.load(userId);
+        TreeIdMap.load();
         ReserveIdMap.load();
+        AnimalIdMap.load();
+        MarathonIdMap.load();
+        NewAncientTreeIdMap.load();
         BeachIdMap.load();
+        WalkPathIdMap.load();
         ConfigV2.load(userId);
-        LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_settings);
         if (userName != null) {
             setBaseSubtitle(getString(R.string.settings) + ": " + userName);
         }
-        setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
+        setBaseSubtitleTextColor(ContextCompat.getColor(this, R.color.textColorPrimary));
 
         context = this;
         tabHost = findViewById(R.id.tab_settings);
@@ -85,7 +97,7 @@ public class SettingsActivity extends BaseActivity {
                             linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                             linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
                             linearLayout.setOrientation(LinearLayout.VERTICAL);
-                            for (ModelField modelField : modelFields.values()) {
+                            for (ModelField<?> modelField : modelFields.values()) {
                                 View view = modelField.getView(context);
                                 if (view != null) {
                                     linearLayout.addView(view);
@@ -158,7 +170,7 @@ public class SettingsActivity extends BaseActivity {
         menu.add(0, 2, 2, "导入配置");
         menu.add(0, 3, 3, "删除配置");
         menu.add(0, 4, 4, "单向好友");
-        if (!"TEST".equals(ViewAppInfo.getAppVersion())) {
+        if (!"TEST".equals(ViewAppInfo.getAppVersion()) && LibraryUtil.loadLibrary("sesame")) {
             menu.add(0, 5, 5, "切换至新UI");
         }
         return super.onCreateOptionsMenu(menu);
@@ -193,9 +205,9 @@ public class SettingsActivity extends BaseActivity {
                                 userConfigDirectoryFile = FileUtil.getUserConfigDirectoryFile(userId);
                             }
                             if (FileUtil.deleteFile(userConfigDirectoryFile)) {
-                                Toast.makeText(this, "配置删除成功", Toast.LENGTH_SHORT).show();
+                                ToastUtil.show(this, "配置删除成功");
                             } else {
-                                Toast.makeText(this, "配置删除失败", Toast.LENGTH_SHORT).show();
+                                ToastUtil.show(this, "配置删除失败");
                             }
                             finish();
                         })
@@ -207,15 +219,15 @@ public class SettingsActivity extends BaseActivity {
                 ListDialog.show(this, "单向好友列表", AlipayUser.getList(user -> user.getFriendStatus() != 1), SelectModelFieldFunc.newMapInstance(), false, ListDialog.ListType.SHOW);
                 break;
             case 5:
-                UIConfig.INSTANCE.setNewUI(true);
-                if (UIConfig.save()) {
+                AppConfig.INSTANCE.setNewUI(true);
+                if (AppConfig.save()) {
                     Intent intent = new Intent(this, NewSettingsActivity.class);
                     intent.putExtra("userId", userId);
                     intent.putExtra("userName", userName);
                     finish();
                     startActivity(intent);
                 } else {
-                    Toast.makeText(this, "切换失败", Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(this, "切换失败");
                 }
                 break;
         }
@@ -240,13 +252,13 @@ public class SettingsActivity extends BaseActivity {
                     }
                     FileInputStream inputStream = new FileInputStream(configV2File);
                     if (FileUtil.streamTo(inputStream, getContentResolver().openOutputStream(data.getData()))) {
-                        Toast.makeText(this, "导出成功！", Toast.LENGTH_SHORT).show();
+                        ToastUtil.show(this, "导出成功！");
                     } else {
-                        Toast.makeText(this, "导出失败！", Toast.LENGTH_SHORT).show();
+                        ToastUtil.show(this, "导出失败！");
                     }
                 } catch (IOException e) {
                     Log.printStackTrace(e);
-                    Toast.makeText(this, "导出失败！", Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(this, "导出失败！");
                 }
             }
         } else if (requestCode == IMPORT_REQUEST_CODE) {
@@ -261,7 +273,7 @@ public class SettingsActivity extends BaseActivity {
                     }
                     FileOutputStream outputStream = new FileOutputStream(configV2File);
                     if (FileUtil.streamTo(getContentResolver().openInputStream(data.getData()), outputStream)) {
-                        Toast.makeText(this, "导入成功！", Toast.LENGTH_SHORT).show();
+                        ToastUtil.show(this, "导入成功！");
                         if (!StringUtil.isEmpty(userId)) {
                             try {
                                 Intent intent = new Intent("com.eg.android.AlipayGphone.sesame.restart");
@@ -275,11 +287,11 @@ public class SettingsActivity extends BaseActivity {
                         finish();
                         startActivity(intent);
                     } else {
-                        Toast.makeText(this, "导入失败！", Toast.LENGTH_SHORT).show();
+                        ToastUtil.show(this, "导入失败！");
                     }
                 } catch (IOException e) {
                     Log.printStackTrace(e);
-                    Toast.makeText(this, "导入失败！", Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(this, "导入失败！");
                 }
             }
         }
@@ -287,7 +299,7 @@ public class SettingsActivity extends BaseActivity {
 
     private void save() {
         if (ConfigV2.isModify(userId) && ConfigV2.save(userId, false)) {
-            Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
+            ToastUtil.show(this, "保存成功！");
             if (!StringUtil.isEmpty(userId)) {
                 try {
                     Intent intent = new Intent("com.eg.android.AlipayGphone.sesame.restart");
@@ -300,7 +312,6 @@ public class SettingsActivity extends BaseActivity {
         }
         if (!StringUtil.isEmpty(userId)) {
             UserIdMap.save(userId);
-            CooperationIdMap.save(userId);
         }
     }
 

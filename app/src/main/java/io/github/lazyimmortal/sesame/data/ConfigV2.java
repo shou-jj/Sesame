@@ -2,9 +2,11 @@ package io.github.lazyimmortal.sesame.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+
 import io.github.lazyimmortal.sesame.data.task.ModelTask;
 import io.github.lazyimmortal.sesame.entity.UserEntity;
 import io.github.lazyimmortal.sesame.util.*;
+import io.github.lazyimmortal.sesame.util.idMap.UserIdMap;
 
 import java.io.File;
 import java.util.HashMap;

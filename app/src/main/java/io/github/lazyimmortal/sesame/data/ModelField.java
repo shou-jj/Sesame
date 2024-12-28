@@ -1,22 +1,25 @@
 package io.github.lazyimmortal.sesame.data;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.core.content.ContextCompat;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import io.github.lazyimmortal.sesame.R;
-import io.github.lazyimmortal.sesame.util.JsonUtil;
-import io.github.lazyimmortal.sesame.util.TypeUtil;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Objects;
+
+import io.github.lazyimmortal.sesame.R;
+import io.github.lazyimmortal.sesame.util.JsonUtil;
+import io.github.lazyimmortal.sesame.util.ToastUtil;
+import io.github.lazyimmortal.sesame.util.TypeUtil;
+import lombok.Data;
 
 @Data
 public class ModelField<T> implements Serializable {
@@ -29,6 +32,9 @@ public class ModelField<T> implements Serializable {
 
     @JsonIgnore
     private String name;
+
+    @JsonIgnore
+    private String description;
 
     @JsonIgnore
     protected T defaultValue;
@@ -48,6 +54,16 @@ public class ModelField<T> implements Serializable {
         this.code = code;
         this.name = name;
         this.defaultValue = value;
+        this.description = null;
+        setObjectValue(value);
+    }
+
+    public ModelField(String code, String name, T value, String description) {
+        this();
+        this.code = code;
+        this.name = name;
+        this.defaultValue = value;
+        this.description = description;
         setObjectValue(value);
     }
 
@@ -110,14 +126,14 @@ public class ModelField<T> implements Serializable {
         TextView btn = new TextView(context);
         btn.setText(getName());
         btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        btn.setTextColor(Color.parseColor("#216EEE"));
-        btn.setBackground(context.getResources().getDrawable(R.drawable.button));
+        btn.setTextColor(ContextCompat.getColor(context, R.color.button));
+        btn.setBackground(ContextCompat.getDrawable(context, R.drawable.button));
         btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         btn.setMinHeight(150);
         btn.setMaxHeight(180);
         btn.setPaddingRelative(40, 0, 40, 0);
         btn.setAllCaps(false);
-        btn.setOnClickListener(v -> Toast.makeText(context, "无配置项", Toast.LENGTH_SHORT).show());
+        btn.setOnClickListener(v -> ToastUtil.show(context, "无配置项"));
         return btn;
     }
 

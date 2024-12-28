@@ -87,7 +87,7 @@
                     android:textSize="14sp" />
 
             <Button
-                    android:id="@+id/btn_all_log"
+                    android:id="@+id/btn_other_log"
                     style="@android:style/Widget.DeviceDefault.Button.Borderless"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -101,7 +101,7 @@
                     android:orientation="vertical"
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
-                    android:text="@string/all_log"
+                    android:text="@string/other_log"
                     android:textAlignment="gravity"
                     android:textColor="@color/main_button_text"
                     android:textSize="14sp" />

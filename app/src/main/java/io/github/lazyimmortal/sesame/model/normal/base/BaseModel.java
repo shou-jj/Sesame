@@ -1,8 +1,7 @@
 package io.github.lazyimmortal.sesame.model.normal.base;
 
 import lombok.Getter;
-import org.json.JSONArray;
-import org.json.JSONObject;
+
 import io.github.lazyimmortal.sesame.data.Model;
 import io.github.lazyimmortal.sesame.data.ModelFields;
 import io.github.lazyimmortal.sesame.data.ModelGroup;
@@ -10,9 +9,9 @@ import io.github.lazyimmortal.sesame.data.modelFieldExt.BooleanModelField;
 import io.github.lazyimmortal.sesame.data.modelFieldExt.ChoiceModelField;
 import io.github.lazyimmortal.sesame.data.modelFieldExt.IntegerModelField;
 import io.github.lazyimmortal.sesame.data.modelFieldExt.ListModelField;
-import io.github.lazyimmortal.sesame.model.task.antOcean.AntOceanRpcCall;
-import io.github.lazyimmortal.sesame.model.task.reserve.ReserveRpcCall;
+import io.github.lazyimmortal.sesame.model.task.protectEcology.ProtectEcology;
 import io.github.lazyimmortal.sesame.util.*;
+import io.github.lazyimmortal.sesame.util.idMap.*;
 
 /**
  * 基础配置模块
@@ -48,8 +47,6 @@ public class BaseModel extends Model {
     @Getter
     private static final IntegerModelField toastOffsetY = new IntegerModelField("toastOffsetY", "气泡纵向偏移", 0);
     @Getter
-    private static final BooleanModelField languageSimplifiedChinese = new BooleanModelField("languageSimplifiedChinese", "只显示中文并设置时区", true);
-    @Getter
     private static final BooleanModelField enableOnGoing = new BooleanModelField("enableOnGoing", "开启状态栏禁删", false);
 
     @Override
@@ -84,7 +81,6 @@ public class BaseModel extends Model {
         modelFields.addField(recordLog);
         modelFields.addField(showToast);
         modelFields.addField(enableOnGoing);
-        modelFields.addField(languageSimplifiedChinese);
         modelFields.addField(toastOffsetY);
         return modelFields;
     }
@@ -92,8 +88,9 @@ public class BaseModel extends Model {
     public static void initData() {
         new Thread(() -> {
             try {
-                initReserve();
-                initBeach();
+                TimeUtil.sleep(5000);
+                ProtectEcology.initForest();
+                ProtectEcology.initOcean();
             } catch (Exception e) {
                 Log.printStackTrace(e);
             }
@@ -102,72 +99,14 @@ public class BaseModel extends Model {
 
     public static void destroyData() {
         try {
+            TreeIdMap.clear();
             ReserveIdMap.clear();
+            AnimalIdMap.clear();
+            MarathonIdMap.clear();
+            NewAncientTreeIdMap.clear();
             BeachIdMap.clear();
         } catch (Exception e) {
             Log.printStackTrace(e);
-        }
-    }
-
-    private static void initReserve() {
-        try {
-            String s = ReserveRpcCall.queryTreeItemsForExchange();
-            if (s == null) {
-                Thread.sleep(RandomUtil.delay());
-                s = ReserveRpcCall.queryTreeItemsForExchange();
-            }
-            JSONObject jo = new JSONObject(s);
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONArray ja = jo.getJSONArray("treeItems");
-                for (int i = 0; i < ja.length(); i++) {
-                    jo = ja.getJSONObject(i);
-                    if (!jo.has("projectType"))
-                        continue;
-                    if (!"RESERVE".equals(jo.getString("projectType"))) {
-                        continue;
-                    }
-                    if (!"AVAILABLE".equals(jo.getString("applyAction"))) {
-                        continue;
-                    }
-                    ReserveIdMap.add(jo.getString("itemId"), jo.getString("itemName") + "(" + jo.getInt("energy") + "g)");
-                }
-                ReserveIdMap.save();
-            } else {
-                Log.i(jo.getString("resultDesc"));
-            }
-        } catch (Throwable t) {
-            Log.printStackTrace(t);
-            ReserveIdMap.load();
-        }
-    }
-
-    private static void initBeach() {
-        try {
-            String s = AntOceanRpcCall.queryCultivationList();
-            JSONObject jo = new JSONObject(s);
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONArray ja = jo.getJSONArray("cultivationItemVOList");
-                for (int i = 0; i < ja.length(); i++) {
-                    jo = ja.getJSONObject(i);
-                    if (!jo.has("templateSubType")) {
-                        continue;
-                    }
-                    if (!"BEACH".equals(jo.getString("templateSubType"))
-                            && !"COOPERATE_SEA_TREE".equals(jo.getString("templateSubType")) && !"SEA_ANIMAL".equals(jo.getString("templateSubType"))) {
-                        continue;
-                    }
-                    if (!"AVAILABLE".equals(jo.getString("applyAction"))) {
-                        continue;
-                    }
-                    BeachIdMap.add(jo.getString("templateCode"), jo.getString("cultivationName") + "(" + jo.getInt("energy") + "g)");
-                }
-                BeachIdMap.save();
-            } else {
-                Log.i(jo.getString("resultDesc"));
-            }
-        } catch (Throwable t) {
-            Log.printStackTrace(t);
-            BeachIdMap.load();
         }
     }
 

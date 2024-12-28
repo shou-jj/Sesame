@@ -8,20 +8,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.webkit.*;
-import android.widget.Toast;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import androidx.core.content.ContextCompat;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.github.lazyimmortal.sesame.BuildConfig;
-import io.github.lazyimmortal.sesame.R;
-import io.github.lazyimmortal.sesame.data.*;
-import io.github.lazyimmortal.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
-import io.github.lazyimmortal.sesame.data.task.ModelTask;
-import io.github.lazyimmortal.sesame.entity.AlipayUser;
-import io.github.lazyimmortal.sesame.ui.dto.ModelDto;
-import io.github.lazyimmortal.sesame.ui.dto.ModelFieldInfoDto;
-import io.github.lazyimmortal.sesame.ui.dto.ModelFieldShowDto;
-import io.github.lazyimmortal.sesame.ui.dto.ModelGroupDto;
-import io.github.lazyimmortal.sesame.util.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +27,44 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import io.github.lazyimmortal.sesame.BuildConfig;
+import io.github.lazyimmortal.sesame.R;
+import io.github.lazyimmortal.sesame.data.AppConfig;
+import io.github.lazyimmortal.sesame.data.ConfigV2;
+import io.github.lazyimmortal.sesame.data.Model;
+import io.github.lazyimmortal.sesame.data.ModelConfig;
+import io.github.lazyimmortal.sesame.data.ModelField;
+import io.github.lazyimmortal.sesame.data.ModelFields;
+import io.github.lazyimmortal.sesame.data.ModelGroup;
+import io.github.lazyimmortal.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
+import io.github.lazyimmortal.sesame.data.task.ModelTask;
+import io.github.lazyimmortal.sesame.entity.AlipayUser;
+import io.github.lazyimmortal.sesame.model.extensions.ExtensionsHandle;
+import io.github.lazyimmortal.sesame.ui.dto.ModelDto;
+import io.github.lazyimmortal.sesame.ui.dto.ModelFieldInfoDto;
+import io.github.lazyimmortal.sesame.ui.dto.ModelFieldShowDto;
+import io.github.lazyimmortal.sesame.ui.dto.ModelGroupDto;
+import io.github.lazyimmortal.sesame.util.AESUtil;
+import io.github.lazyimmortal.sesame.util.FileUtil;
+import io.github.lazyimmortal.sesame.util.JsonUtil;
+import io.github.lazyimmortal.sesame.util.LanguageUtil;
+import io.github.lazyimmortal.sesame.util.Log;
+import io.github.lazyimmortal.sesame.util.StringUtil;
+import io.github.lazyimmortal.sesame.util.ToastUtil;
+import io.github.lazyimmortal.sesame.util.idMap.AnimalIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.BeachIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.CooperationIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.FarmOrnamentsIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.MarathonIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.MemberBenefitIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.NewAncientTreeIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.PromiseSimpleTemplateIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.ReserveIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.TreeIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.UserIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.VitalityBenefitIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.WalkPathIdMap;
 
 public class NewSettingsActivity extends BaseActivity {
 
@@ -70,15 +103,23 @@ public class NewSettingsActivity extends BaseActivity {
         UserIdMap.setCurrentUserId(userId);
         UserIdMap.load(userId);
         CooperationIdMap.load(userId);
+        VitalityBenefitIdMap.load(userId);
+        FarmOrnamentsIdMap.load(userId);
+        MemberBenefitIdMap.load(userId);
+        PromiseSimpleTemplateIdMap.load(userId);
+        TreeIdMap.load();
         ReserveIdMap.load();
+        AnimalIdMap.load();
+        MarathonIdMap.load();
+        NewAncientTreeIdMap.load();
         BeachIdMap.load();
+        WalkPathIdMap.load();
         ConfigV2.load(userId);
-        LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_new_settings);
         if (userName != null) {
             setBaseSubtitle(getString(R.string.settings) + ": " + userName);
         }
-        setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
+        setBaseSubtitleTextColor(ContextCompat.getColor(this, R.color.textColorPrimary));
 
         context = this;
 
@@ -105,6 +146,7 @@ public class NewSettingsActivity extends BaseActivity {
                 // 强制在当前 WebView 中加载 url
                 Uri requestUrl = request.getUrl();
                 String scheme = requestUrl.getScheme();
+                assert scheme != null;
                 if (
                         scheme.equalsIgnoreCase("http")
                                 || scheme.equalsIgnoreCase("https")
@@ -115,7 +157,7 @@ public class NewSettingsActivity extends BaseActivity {
                     return true;
                 }
                 view.stopLoading();
-                Toast.makeText(context, "Forbidden Scheme:\"" + scheme + "\"", Toast.LENGTH_SHORT).show();
+                ToastUtil.show(context, "Forbidden Scheme:\"" + scheme + "\"");
                 return false;
             }
 
@@ -124,8 +166,13 @@ public class NewSettingsActivity extends BaseActivity {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         webView.addJavascriptInterface(new WebViewCallback(), "HOOK");
-        webView.loadUrl("file:///android_asset/web/index.html");
-        // webView.loadUrl("http://192.168.31.32:5500/app/src/main/assets/web/index.html");
+        if (ExtensionsHandle.handleAlphaRequest("enableDeveloperMode", null, null) == null) {
+            String htmlData = AESUtil.loadDecryptHtmlData(context);
+            webView.loadDataWithBaseURL("file:///android_asset/web/", htmlData, "text/html", "UTF-8", null);
+        } else {
+            webView.loadUrl("file:///android_asset/web/index.html");
+//        webView.loadUrl("http://192.168.31.32:5500/app/src/main/assets/web/index.html");
+        }
         webView.requestFocus();
 
         Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
@@ -182,6 +229,11 @@ public class NewSettingsActivity extends BaseActivity {
         @JavascriptInterface
         public String getBuildInfo() {
             return BuildConfig.APPLICATION_ID + ":" + BuildConfig.VERSION_NAME;
+        }
+
+        @JavascriptInterface
+        public String getUserId() {
+            return userId;
         }
 
         @JavascriptInterface
@@ -341,9 +393,9 @@ public class NewSettingsActivity extends BaseActivity {
                                 userConfigDirectoryFile = FileUtil.getUserConfigDirectoryFile(userId);
                             }
                             if (FileUtil.deleteFile(userConfigDirectoryFile)) {
-                                Toast.makeText(this, "配置删除成功", Toast.LENGTH_SHORT).show();
+                                ToastUtil.show(this, "配置删除成功");
                             } else {
-                                Toast.makeText(this, "配置删除失败", Toast.LENGTH_SHORT).show();
+                                ToastUtil.show(this, "配置删除失败");
                             }
                             finish();
                         })
@@ -355,15 +407,15 @@ public class NewSettingsActivity extends BaseActivity {
                 ListDialog.show(this, "单向好友列表", AlipayUser.getList(user -> user.getFriendStatus() != 1), SelectModelFieldFunc.newMapInstance(), false, ListDialog.ListType.SHOW);
                 break;
             case 5:
-                UIConfig.INSTANCE.setNewUI(false);
-                if (UIConfig.save()) {
+                AppConfig.INSTANCE.setNewUI(false);
+                if (AppConfig.save()) {
                     Intent intent = new Intent(this, SettingsActivity.class);
                     intent.putExtra("userId", userId);
                     intent.putExtra("userName", userName);
                     finish();
                     startActivity(intent);
                 } else {
-                    Toast.makeText(this, "切换失败", Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(this, "切换失败");
                 }
                 break;
         }
@@ -388,13 +440,13 @@ public class NewSettingsActivity extends BaseActivity {
                     }
                     FileInputStream inputStream = new FileInputStream(configV2File);
                     if (FileUtil.streamTo(inputStream, getContentResolver().openOutputStream(data.getData()))) {
-                        Toast.makeText(this, "导出成功！", Toast.LENGTH_SHORT).show();
+                        ToastUtil.show(this, "导出成功！");
                     } else {
-                        Toast.makeText(this, "导出失败！", Toast.LENGTH_SHORT).show();
+                        ToastUtil.show(this, "导出失败！");
                     }
                 } catch (IOException e) {
                     Log.printStackTrace(e);
-                    Toast.makeText(this, "导出失败！", Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(this, "导出失败！");
                 }
             }
         } else if (requestCode == IMPORT_REQUEST_CODE) {
@@ -409,7 +461,7 @@ public class NewSettingsActivity extends BaseActivity {
                     }
                     FileOutputStream outputStream = new FileOutputStream(configV2File);
                     if (FileUtil.streamTo(getContentResolver().openInputStream(data.getData()), outputStream)) {
-                        Toast.makeText(this, "导入成功！", Toast.LENGTH_SHORT).show();
+                        ToastUtil.show(this, "导入成功！");
                         if (!StringUtil.isEmpty(userId)) {
                             try {
                                 Intent intent = new Intent("com.eg.android.AlipayGphone.sesame.restart");
@@ -423,11 +475,11 @@ public class NewSettingsActivity extends BaseActivity {
                         finish();
                         startActivity(intent);
                     } else {
-                        Toast.makeText(this, "导入失败！", Toast.LENGTH_SHORT).show();
+                        ToastUtil.show(this, "导入失败！");
                     }
                 } catch (IOException e) {
                     Log.printStackTrace(e);
-                    Toast.makeText(this, "导入失败！", Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(this, "导入失败！");
                 }
             }
         }
@@ -435,7 +487,7 @@ public class NewSettingsActivity extends BaseActivity {
 
     private void save() {
         if (ConfigV2.isModify(userId) && ConfigV2.save(userId, false)) {
-            Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
+            ToastUtil.show(this, "保存成功！");
             if (!StringUtil.isEmpty(userId)) {
                 try {
                     Intent intent = new Intent("com.eg.android.AlipayGphone.sesame.restart");
@@ -448,7 +500,6 @@ public class NewSettingsActivity extends BaseActivity {
         }
         if (!StringUtil.isEmpty(userId)) {
             UserIdMap.save(userId);
-            CooperationIdMap.save(userId);
         }
     }
 

@@ -174,7 +174,8 @@ public class OldRpcBridge implements RpcBridge {
                         Log.record("系统繁忙，可能需要滑动验证");
                         return null;
                     }
-                    if (!resultObject.optBoolean("success")) {
+                    if (!resultObject.optBoolean("success")
+                            && !resultObject.optBoolean("isSuccess")) {
                         rpcEntity.setError();
                         Log.error("old rpc response | id: " + id + " | method: " + method + " args: " + args + " | data:" + rpcEntity.getResponseString());
                     }

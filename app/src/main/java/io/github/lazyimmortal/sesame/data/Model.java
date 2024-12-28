@@ -1,13 +1,21 @@
 package io.github.lazyimmortal.sesame.data;
 
-import lombok.Getter;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import io.github.lazyimmortal.sesame.data.modelFieldExt.BooleanModelField;
 import io.github.lazyimmortal.sesame.data.task.ModelTask;
 import io.github.lazyimmortal.sesame.model.base.ModelOrder;
 import io.github.lazyimmortal.sesame.util.Log;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import lombok.Getter;
 
 public abstract class Model {
 
@@ -19,7 +27,7 @@ public abstract class Model {
 
     private static final Map<Class<? extends Model>, Model> modelMap = new ConcurrentHashMap<>();
 
-    private static final List<Class<Model>> modelClazzList = ModelOrder.getClazzList();
+    private static final List<Class<? extends Model>> modelClazzList = ModelOrder.getClazzList();
 
     @Getter
     private static final Model[] modelArray = new Model[modelClazzList.size()];
@@ -102,9 +110,10 @@ public abstract class Model {
     public static synchronized void initAllModel() {
         destroyAllModel();
         for (int i = 0, len = modelClazzList.size(); i < len; i++) {
-            Class<Model> modelClazz = modelClazzList.get(i);
+            Class<? extends Model> modelClazz = modelClazzList.get(i);
             try {
-                Model model = modelClazz.newInstance();
+                Constructor<? extends Model> constructor = modelClazz.getConstructor();
+                Model model = constructor.newInstance();
                 ModelConfig modelConfig = new ModelConfig(model);
                 modelArray[i] = model;
                 modelMap.put(modelClazz, model);
@@ -117,7 +126,7 @@ public abstract class Model {
                     groupModelConfigMap.put(group, modelConfigMap);
                 }
                 modelConfigMap.put(modelCode, modelConfig);
-            } catch (IllegalAccessException | InstantiationException e) {
+            } catch (ReflectiveOperationException e) {
                 Log.printStackTrace(e);
             }
         }

@@ -72,8 +72,19 @@ public class AntOceanRpcCall {
     }
 
     public static String queryReplicaHome() {
-        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryReplicaHome",
-                "[{\"replicaCode\":\"avatar\",\"source\":\"senlinzuoshangjiao\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
+        // source : senlinzuoshangjiao seaAreaList
+        String args = "[{\"replicaCode\":\"avatar\",\"source\":\"seaAreaList\",\"uniqueId\":\"" + getUniqueId() + "\"}]";
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryReplicaHome", args);
+    }
+
+    public static String queryReplicaTaskList() {
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryTaskList",
+                "[{\"fromAct\":\"dynamic_task\",\"sceneCode\":\"ANTOCEAN_AVATAR_TASK\",\"source\":\"seaAreaList\",\"uniqueId\":\"" + getUniqueId() + "\",\"version\":\"" + VERSION + "\"}]");
+    }
+
+    public static String receiveReplicaTaskAward(String taskType) {
+        return ApplicationHook.requestString("com.alipay.antiep.receiveTaskAward",
+                "[{\"ignoreLimit\":\"false\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTOCEAN_AVATAR_TASK\",\"source\":\"ANTFOCEAN\",\"taskType\":\"" + taskType + "\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
     public static String repairSeaArea() {
@@ -82,10 +93,15 @@ public class AntOceanRpcCall {
     }
 
     public static String queryOceanPropList() {
-        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryOceanPropList",
-                "[{\"propTypeList\":\"UNIVERSAL_PIECE\",\"skipPropId\":false,\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"uniqueId\":\"" +
-                        getUniqueId() + "\"}]");
+        String args = "[{\"skipPropId\":false,\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]";
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryOceanPropList", args);
     }
+
+    public static String queryOceanPropList(String propTypeList) {
+        String args = "[{\"propTypeList\":\"" + propTypeList + "\",\"skipPropId\":false,\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]";
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryOceanPropList", args);
+    }
+
 
     public static String querySeaAreaDetailList() {
         return ApplicationHook.requestString("alipay.antocean.ocean.h5.querySeaAreaDetailList",
@@ -139,24 +155,6 @@ public class AntOceanRpcCall {
                 "[{\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
-    /* 保护海洋净滩行动 */
-    public static String queryCultivationList() {
-        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryCultivationList",
-                "[{\"source\":\"ANT_FOREST\",\"version\":\"20231031\"}]");
-    }
-
-    public static String queryCultivationDetail(String cultivationCode, String projectCode) {
-        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryCultivationDetail",
-                "[{\"cultivationCode\":\"" + cultivationCode + "\",\"projectCode\":\"" + projectCode
-                        + "\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
-    }
-
-    public static String oceanExchangeTree(String cultivationCode, String projectCode) {
-        return ApplicationHook.requestString("alipay.antocean.ocean.h5.exchangeTree",
-                "[{\"cultivationCode\":\"" + cultivationCode + "\",\"projectCode\":\"" + projectCode
-                        + "\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
-    }
-
     // 答题
     public static String getQuestion() {
         return ApplicationHook.requestString("com.alipay.reading.game.dada.openDailyAnswer.getQuestion",
@@ -175,63 +173,29 @@ public class AntOceanRpcCall {
                 "[{\"activityId\":\"363\",\"answer\":\"" + answer + "\",\"dadaVersion\":\"1.3.0\",\"outBizId\":\"ANTOCEAN_DATI_PINTU_722_new\",\"questionId\":\"" + questionId + "\",\"version\":\"1\"}]");
     }
 
-    // 潘多拉任务
-    public static String PDLqueryReplicaHome() {
-        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryReplicaHome",
-                "[{\"replicaCode\":\"avatar\",\"source\":\"seaAreaList\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
-    }
-
-    public static String PDLqueryTaskList() {
-        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryTaskList",
-                "[{\"fromAct\":\"dynamic_task\",\"sceneCode\":\"ANTOCEAN_AVATAR_TASK\",\"source\":\"seaAreaList\",\"uniqueId\":\"" + getUniqueId() + "\",\"version\":\"20220707\"}]");
-    }
-
-    public static String PDLreceiveTaskAward(String taskType) {
-        return ApplicationHook.requestString("com.alipay.antiep.receiveTaskAward",
-                "[{\"ignoreLimit\":\"false\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTOCEAN_AVATAR_TASK\",\"source\":\"ANTFOCEAN\",\"taskType\":\"" + taskType + "\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
-    }
-
     // 制作万能拼图
-    public static String exchangePropList() {
-        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryOceanPropList",
-                "[{\"skipPropId\":false,\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
-    }
-    public static String exchangeProp() {
+    public static String exchangeProp(int exchangeNum, String propCode, String propType) {
         long timestamp = System.currentTimeMillis();
         return ApplicationHook.requestString("alipay.antocean.ocean.h5.exchangeProp",
-                "[{\"bizNo\":\"" + timestamp + "\",\"exchangeNum\":\"1\",\"propCode\":\"UNIVERSAL_PIECE\",\"propType\":\"UNIVERSAL_PIECE\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
+                "[{\"bizNo\":\"" + timestamp + "\",\"exchangeNum\":\"" + exchangeNum + "\",\"propCode\":\"" + propCode + "\",\"propType\":\"" + propType + "\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
+    }
+
+    public static String exchangeUniversalPiece(int exchangeNum) {
+        return exchangeProp(exchangeNum, "UNIVERSAL_PIECE", "UNIVERSAL_PIECE");
     }
 
     // 使用万能拼图
-    public static String usePropByTypeList() {
-        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryOceanPropList",
-                "[{\"propTypeList\":\"UNIVERSAL_PIECE\",\"skipPropId\":false,\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
-    }
-
     public static String queryFishList(int pageNum) {
         return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryFishList",
-                "[{\"combineStatus\":\"UNOBTAINED\",\"needSummary\":\"Y\",\"pageNum\":" + pageNum + ",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"targetUserId\":\"\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
+                "[{\"combineStatus\":\"UNOBTAINED\",\"needSummary\":\"Y\",\"pageNum\":" + pageNum + ",\"targetUserId\":\"\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
-    public static String usePropByType(int assets, Set<Integer> attachAssetsSet) {
-        try {
-            if (!attachAssetsSet.isEmpty()) {
-                JSONArray jsonArray = new JSONArray();
-                for (Integer attachAssets : attachAssetsSet) {
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("assets", assets);
-                    jsonObject.put("assetsNum", 1);
-                    jsonObject.put("attachAssets", attachAssets);
-                    jsonObject.put("propCode", "UNIVERSAL_PIECE");
-                    jsonArray.put(jsonObject);
-                }
-                return ApplicationHook.requestString("alipay.antocean.ocean.h5.usePropByType",
-                        "[{\"assetsDetails\":" + jsonArray + ",\"propCode\":\"UNIVERSAL_PIECE\",\"propType\":\"UNIVERSAL_PIECE\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
-            }
-        } catch (JSONException e) {
-            Log.printStackTrace(e);
-        }
-        return null;
+    public static String usePropByType(String propCode, String propType, JSONArray assetsDetails) {
+        String args = "[{\"assetsDetails\":" + assetsDetails + ",\"propCode\":\"" + propCode + "\",\"propType\":\"" + propType + "\",\"uniqueId\":\"" + getUniqueId() + "\"}]";
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.usePropByType", args);
     }
 
+    public static String useUniversalPiece(JSONArray assetsDetails) {
+        return usePropByType("UNIVERSAL_PIECE", "UNIVERSAL_PIECE", assetsDetails);
+    }
 }

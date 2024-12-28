@@ -1,6 +1,6 @@
 package io.github.lazyimmortal.sesame.entity;
 
-import io.github.lazyimmortal.sesame.util.BeachIdMap;
+import io.github.lazyimmortal.sesame.util.idMap.BeachIdMap;
 
 import java.util.ArrayList;
 import java.util.List;
