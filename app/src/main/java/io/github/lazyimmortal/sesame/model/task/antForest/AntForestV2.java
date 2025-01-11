@@ -1896,9 +1896,6 @@ public class AntForestV2 extends ModelTask {
      * 光盘行动
      */
     private void photoGuangPan(String dayPoint) {
-        if (!TaskCommon.IS_AFTER_6AM) {
-            return;
-        }
         try {
             String source = "renwuGD";
             //检查今日任务状态
