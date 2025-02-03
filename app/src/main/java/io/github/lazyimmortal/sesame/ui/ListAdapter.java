@@ -75,6 +75,21 @@ public class ListAdapter extends BaseAdapter {
         }
     }
 
+    /**
+     * 获取当前选中的项列表
+     */
+    public List<IdAndName> getSelectedItems() {
+        List<IdAndName> selectedItems = new ArrayList<>();
+        if (list != null && selectModelFieldFunc != null) {
+            for (IdAndName item : list) {
+                if (selectModelFieldFunc.contains(item.id)) { // 如果该项被选中
+                    selectedItems.add(item); // 添加到选中项列表
+                }
+            }
+        }
+        return selectedItems;
+    }
+
     public int findLast(String findThis) {
         if (list == null || list.isEmpty()) {
             return -1;

@@ -140,5 +140,6 @@
     <string name="omegakoi_town">Omegakoi Town</string>
     <string name="consume_gold">Consume Gold</string>
     <string name="use_special_food">Use Special Food</string>
+    <string name="one_click_setup">One Click Setup</string>
 
 </resources>

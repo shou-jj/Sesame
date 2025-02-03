@@ -39,7 +39,7 @@ public class ListDialog {
     static AlertDialog listDialog;
     static Button btn_find_last, btn_find_next,
             btn_select_all, btn_select_invert;
-    static EditText searchText;
+    static EditText searchText, oneClickText;
     static ListView lv_list;
     private static SelectModelFieldFunc selectModelFieldFunc;
     static Boolean hasCount;
@@ -100,11 +100,12 @@ public class ListDialog {
         listDialog.setOnShowListener(p1 -> {
             AlertDialog d = (AlertDialog) p1;
             layout_batch_process = d.findViewById(R.id.layout_batch_process);
-            layout_batch_process.setVisibility(listType == ListType.CHECK && !hasCount ? View.VISIBLE : View.GONE);
+            assert layout_batch_process != null;
+            layout_batch_process.setVisibility(listType == ListType.CHECK ? View.VISIBLE : View.GONE);
             ListAdapter.get(c).notifyDataSetChanged();
         });
         listDialog.show();
-         Button positiveButton = listDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        Button positiveButton = listDialog.getButton(DialogInterface.BUTTON_POSITIVE);
         if (positiveButton != null) {
             positiveButton.setTextColor(ContextCompat.getColor(c, R.color.button));
         }
@@ -155,6 +156,46 @@ public class ListDialog {
         };
         btn_select_all.setOnClickListener(batchBtnOnClickListener);
         btn_select_invert.setOnClickListener(batchBtnOnClickListener);
+
+
+        oneClickText = v.findViewById(R.id.one_click_setup);
+        oneClickText.setOnFocusChangeListener((v2, hasFocus) -> {
+            if (hasFocus) {
+                // 获得焦点时，清除提示内容
+                oneClickText.setHint("");
+            } else {
+                // 失去焦点时，处理输入内容
+                String input = oneClickText.getText().toString();
+                if (input.isEmpty()) {
+                    // 如果输入为空，恢复提示内容
+                    oneClickText.setHint("请输入数量");
+                } else {
+                    try {
+                        // 将输入内容转换为整数
+                        int count = Integer.parseInt(input);
+
+                        if (count <= 0) {
+                            // 如果输入的值小于等于 0，弹出提示
+                            Toast.makeText(v2.getContext(), "请输入大于 0 的数字", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // 如果输入的值有效，为选中的复选框赋值
+                            ListAdapter la = ListAdapter.get(v2.getContext());
+                            for (IdAndName item : la.getSelectedItems()) {
+                                selectModelFieldFunc.add(item.id, count); // 为选中的项设置次数
+                            }
+                            la.notifyDataSetChanged(); // 刷新列表
+                        }
+                    } catch (NumberFormatException e) {
+                        // 如果输入的不是有效数字，弹出提示
+                        Toast.makeText(v2.getContext(), "请输入有效的数字", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
+        if (!hasCount) {
+            oneClickText.setVisibility(View.GONE);
+        }
 
         searchText = v.findViewById(R.id.edt_find);
         lv_list = v.findViewById(R.id.lv_list);

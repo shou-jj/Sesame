@@ -136,5 +136,6 @@
     <string name="omegakoi_town">支小镇</string>
     <string name="consume_gold">支付宝消费金</string>
     <string name="use_special_food">使用特殊食品</string>
+    <string name="one_click_setup">一键设置</string>
 
 </resources>
